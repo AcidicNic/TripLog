@@ -3,8 +3,14 @@
 <div class="title_container card text-center mx-auto">
     <div class="card-body">
         <h1 class="triplog_title card-title text-center no_select">TripLog</h1>
-        <button type="button" class="btn btn-light m-2" onclick="location.href='/archive';">Archive</button>
-        <button type="button" class="btn btn-success m-2" onclick="location.href='/begin';">New Log</button>
-        <button type="button" class="btn btn-light m-2" onclick="">Options</button>
+        {{#if thisUser}}
+            <button type="button" class="btn btn-light m-2" onclick="location.href='/archive';">Archive</button>
+            <button type="button" class="btn btn-success m-2" onclick="location.href='/begin';">New Log</button>
+            <button type="button" class="btn btn-secondary m-2" onclick="location.href='/begin';">Options</button>
+            <button type="button" class="btn btn-light m-2" onclick="location.href='/logout';">Log Out</button>
+        {{else}}
+            <button type="button" class="btn btn-light m-2" onclick="location.href='/login';">Log In</button>
+            <button type="button" class="btn btn-success m-2" onclick="location.href='/signup';">Sign Up</button>
+        {{/if}}
     </div>
 </div>

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-assert = require("assert");
+const assert = require("assert");
 
 const url = "mongodb://localhost/triplog-db";
 mongoose.Promise = global.Promise;

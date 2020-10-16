@@ -1,17 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
+const connectEnsureLogin = require('connect-ensure-login');
 
 const Log = require('../models/log');
 const Dose = require('../models/dose');
+const User = require('../models/user');
 
 /* Get create log page */
-router.get('/begin', (req, res) => {
+router.get('/begin', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
     return res.render("begin-form");
 });
 
 /* Post create log */
-router.post('/create', [
+router.post('/create', connectEnsureLogin.ensureLoggedIn(), [
     body('title').trim().escape(),
     body('desc').trim().escape(),
 ], (req, res) => {
@@ -63,14 +65,22 @@ router.post('/create', [
             })
         }
         log.save((err, log) => { if (err) throw err; });
-        console.log(log);
+        User.updateOne(
+            { _id: req.user._id },
+            { $push: { logs: log } },
+            (err, log) => { if (err) throw err; }
+        );
         return res.redirect(`/logs/${log._id}`);
         // TODO: add log to user.
     });
 });
 
-router.get('/logs/:id', (req, res) => {
-    Log.findById(req.params.id)
+router.get('/logs/:logId', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+    if (!req.user.logs.includes(req.params.logId)) {
+        console.log("NOPE");
+        return res.redirect('/');
+    }
+    Log.findById(req.params.logId)
     .populate('doses').populate('notes').lean()
     .then(log => {
         return res.render("log-show", { log });
