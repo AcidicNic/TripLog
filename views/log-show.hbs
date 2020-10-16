@@ -1,0 +1,154 @@
+<!-- current_log.hbs -->
+
+<!-- Collapsable Hamburger Navbar -->
+<div class="pos-f-t sticky-top mb-4">
+    <nav class="navbar navbar-dark bg-dark">
+        <!-- Hamburger Button -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Heading -->
+        <h1 class='archive_title no_select text-white m-0'>{{ log.title }}</h1>
+        <p></p>
+    </nav>
+    <div class="collapse" id="navbarToggleExternalContent">
+        <div class="bg-dark p-2">
+            <div class="text-white text-center">
+                <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#editDescModal">{{ log.desc }}</button><br>
+                <span>Doses:</span><br>
+                {{#each log.doses}}
+                    <!-- TODO: IF option for space between dose and unit -->
+                    <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#drugInfoModal{{dose.drug}}">{{ dose.dose }}{{ dose.unit }} of {{ dose.drug }}</button>
+                {{/each}}
+
+                <br>
+                <button type="button" class="btn btn-dark m-2">Log started on {{ log.start_date }} at {{ log.start_time }}</button>
+            </div>
+            <div class="d-flex justify-content-between btn-row text-white">
+                <button type="button" class="btn btn-primary m-2" onclick="location.href='/';">Home</button>
+                <button type="button" class="btn btn-danger m-2" data-toggle="modal" data-target="#helpModal">Need Help?</button>
+                <button type="button" class="btn btn-success m-2" data-toggle="modal" data-target="#addDoseModal">Add Dose</button>
+                <button type="button" class="btn btn-secondary m-2" onclick="location.href='/logs/{{ log._id }}/edit';">Edit</button>
+
+                {{#if log.status}}
+                    <button type="submit" class="btn btn-warning m-2" name="update_btn" value="status" form='change_status'>Mark Completed</button>
+                {{else}}
+                    <button type="submit" class="btn btn-warning m-2" name="update_btn" value="status" form='change_status'>Reopen Log</button>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modals -->
+{{> help }}
+{{> add_dose }}
+{{> edit_desc }}
+
+{{#each log.doses}}
+    {{> drug_info }}
+{{/each}}
+
+{{#each log.notes}}
+    {{> edit_note }}
+{{/each}}
+
+
+<!-- Notes -->
+<div id="note_container">
+    <div class="row note">
+        <div class="col-xs-1 align-middle text-center pl-1">
+            <span class='timestamp'>{{ log.start_time }}</span>
+        </div>
+        <div class='col-xl-11'>Welcome {{ log.username }}! So far you've had:<br>
+            {% for dose in log.doses %}
+                {{ dose.dose }}{{ dose.unit }} of {{ dose.drug }}<br>
+            {% endfor %}
+        </div>
+    </div>
+    {% for note in log.notes %}
+        {% if note.type == 'str'%}
+            <a data-toggle="modal" data-target="#editNoteModal{{note.id}}">
+                <div class="row note">
+                    <div class="col-xs-1 align-middle text-center pl-1">
+                        <span class='timestamp'>{{ note.timestamp }}</span>
+                    </div>
+<!--                    <div class='col-xl-11' style="white-space: pre-wrap;">-->
+                    <div class='col-xl-11'>
+                        {{ note.content }}<br>
+                    </div>
+                    {% if note.edits %}
+                            <span class="ml-4 pl-4"><strong>Edits:</strong></span><br>
+                            {% for edit in note['edits'] %}
+                                <div class="row note">
+                                    <div class="col-xs-1 align-middle text-center pl-1">
+                                        <span class='timestamp'>{{ edit.timestamp }}</span>
+                                    </div>
+                                    <div class='col-xl-11' style="white-space: pre-wrap;">{{ edit.content }}</div>
+                                </div>
+                            {% endfor %}
+                    {% endif %}
+                </div>
+            </a>
+        {% elif note.type == 'question'%}
+            <div class="row note">
+                <div class="col-xs-1 align-middle text-center pl-1">
+                    <span class='timestamp'>{{ note.timestamp }}</span>
+                </div>
+                <div class='col-xl-11' style="white-space: pre-wrap;">{{ note.content }}</div>
+            </div>
+        {% elif note.type == 'img'%}
+            <div class="row note">
+                <div class="col-xs-1 align-middle text-center pl-1">
+                    <span class='timestamp'>{{ note.timestamp }}</span>
+                </div>
+                <div class='col-xl-11' ><img class="img" src="{{ url_for('static', filename='photos') }}/{{ note.content }}"/></div>
+            </div>
+        {% elif note.type == 'answer'%}
+            <div class="row answer">
+                <div class="col-xs-1 align-middle text-center pl-1">
+                    <span class='timestamp'>Ask The Caterpillar says...</span>
+                </div>
+                <div class='col-xl-11' style="white-space: pre-wrap;">{{ note.content }}</div>
+            </div>
+        {% elif note.type == 'hidden'%}
+            <div class="row note" style="display: none;">
+                <div class="col-xs-1 align-middle text-center pl-1">
+                    <span class='timestamp'>{{ note.timestamp }}</span>
+                </div>
+                <div class='col-xl-11' style="white-space: pre-wrap;">{{ note.content }}</div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Text Input -->
+<div class="input-group fixed-bottom text_input_div">
+    <div class="input-group-append" onclick="
+           document.getElementById('file_input').click();
+    ">
+        <input form='add_note' name='file' type='file' id="file_input" style="display: none;" onchange="
+                if(document.getElementById('file_input').files.length > 0 ){
+                    document.getElementById('paperclip').style.backgroundColor = 'rgba(0, 0, 255, 0.5)';
+               }" />
+        <span class="input-group-text attach_btn" id="paperclip"><i class="fa fa-paperclip"></i></span>
+    </div>
+    <textarea name="note" id="note_input" form='add_note' class="form-control type_note" onkeyup="textAreaAdjust(this)"></textarea>
+    <div class="input-group-append">
+        <span class="input-group-text send_btn" id='add_note_btn' onClick='document.add_note.submit();'><i class="fa fa-location-arrow"></i></span>
+    </div>
+</div>
+
+<form method='POST' name='add_note' id='add_note' action='/logs/{{log._id}}' enctype='multipart/form-data'>
+        <input type='hidden' name='_method' value='PUT'/>
+        <input type='hidden' name='update_btn' value='add_note'/>
+</form>
+
+<form method='POST' name='change_status' id='change_status' action='/logs/{{log._id}}'>
+</form>
+
+<script>
+// scroll to the bottom on pageload
+window.scrollTo(0,document.body.scrollHeight);
+</script>
+{% endblock %}
