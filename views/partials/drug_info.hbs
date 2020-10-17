@@ -1,0 +1,53 @@
+<!-- Info Modal -->
+<div class="modal fade" id="drugInfoModal{{this.drug}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ this.drug }} </h5>
+                {{#if this.pretty_name}}
+                    <h5 class="modal-title text-muted"> ({{ this.pretty_name }})</h5>
+                {{/if}}
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {{#if this.info}}
+                    <h5>Summary:</h5>
+                    <p>{{ this.info.summary }}</p>
+
+                    <h5>Aliases:</h5>
+                    
+
+                    <h5>Effects:</h5>
+                    <ul>
+                        {{#each dose.effects}}<li>{{ this }}</li>{{/each}}
+                    </ul>
+
+                    <h5>Dose:</h5>
+                    <p>{{ this.info.dose }}</p>
+
+                    <h5>Duration:</h5>
+                    <p>{{ this.info.duration }}</p>
+                    {{#if this.info.onset}}
+                    <p><strong> * Onset:</strong> {{ this.info.onset }}</p>
+                    {{/if}}
+                    {{#if this.info.after-effects}}
+                        <p><strong> * After Effects:</strong> {{ this.info.after-effects }}</p>
+                    {{/if}}
+                    {{#if this.info.half-life}}
+                    <p><strong> * Half Life:</strong> {{ this.info.half-life }}</p>
+                    {{/if}}
+
+                    <h5>Avoid:</h5>
+                    <p>{{ this.info.avoid }}</p>
+                {{else}}
+                    <p>Sorry, I can't find any information for {{ this.drug }}!</p>
+                {{/if}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

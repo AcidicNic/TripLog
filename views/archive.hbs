@@ -1,8 +1,3 @@
-<!-- archive.html | archive of previous logs -->
-{% extends 'base.html' %}
-
-{% block content %}
-
 <!-- Collapsable Hamburger Navbar -->
 <div class="pos-f-t mb-4 sticky-top">
     <nav class="navbar navbar-dark bg-dark">
@@ -23,19 +18,17 @@
     </div>
 </div>
 
-{% for log in logs %}
+{{#each logs}}
 <div class="card log_card mb-2">
     <div class="card-body">
-        <h5 class="card-title">{{ log.title }}</h5>
-        <p class="card-text">{{ log.desc }}</p>
-        <a href="/logs/{{log._id}}" class="btn btn-primary float-right">View Log</a>
+        <h5 class="card-title">{{ this.title }}</h5>
+        <p class="card-text">{{ this.desc }}</p>
+        <a href="/logs/{{this._id}}" class="btn btn-primary float-right">View Log</a>
         <button type='submit' form='delete_form' class='btn btn-danger float-right mr-2'>Delete</button>
-        <p class="card-text">{{ log.start_date }}</p>
+        <p class="card-text">{{ this.createdAt }}</p>
     </div>
 </div>
-<form method='POST' id='delete_form' action='/logs/{{log._id}}/delete'>
+<form method='POST' id='delete_form' action='/logs/{{this._id}}/delete'>
     <input type='hidden' name='_method' value='DELETE'>
 </form>
-{% endfor %}
-
-{% endblock %}
+{{/each}}

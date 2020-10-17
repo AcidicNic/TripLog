@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const passport = require("passport");
-const { body, validationResult } = require('express-validator');
+const { check, validationResult } = require('express-validator');
 const connectEnsureLogin = require('connect-ensure-login');
 
 const User = require("../models/user");
@@ -11,19 +11,31 @@ router.get('/login', connectEnsureLogin.ensureLoggedOut(), (req, res) => {
     return res.render("login");
 });
 
-router.post('/login',
-[
-    body('username').isLength({ min: 3 }).withMessage('must be at least 3 chars long')
+router.post('/login', [
+    check('email').exists()
+        .isEmail().withMessage('be a valid email')
         .trim().escape(),
-    body('password').isLength({ min: 8 }).withMessage('must be at least 8 chars long')
-        .matches(/\d/).withMessage('must contain a number').trim().escape(),
+    check('password').exists()
+        .isLength({ min: 8 }).withMessage('be at least 8 characters long')
+        .matches(/[A-Z]/).withMessage('contain an uppercase letter')
+        .matches(/[a-z]/).withMessage('contain a lowercase letter')
+        .matches(/\d/).withMessage('contain a number')
+        .trim().escape(),
 ],
  (req, res, next) => {
+    const errs = validationResult(req);
+    if (!errs.isEmpty()) {
+        return res.render("login", { email: req.body.email, errs: errs.array() });
+    }
     passport.authenticate('local',
     (err, user, info) => {
         if (err) { return next(err); }
-        if (!user) { return res.redirect('/login?info=' + info); }
-
+        if (!user) {
+            return res.render("login", {
+                email: req.body.email,
+                errs: [{msg: "Incorrect email or password. :("}]
+            });
+        }
         req.logIn(user, function(err) {
             if (err) {
                 return next(err);
@@ -43,9 +55,26 @@ router.get("/signup", connectEnsureLogin.ensureLoggedOut(), (req, res) => {
     return res.render("signup");
 });
 
-router.post('/signup', (req, res) => {
+router.post('/signup', [
+    check('name').exists()
+        .isLength({ min: 3 }).withMessage('be at least 3 characters long')
+        .trim().escape(),
+    check('email').exists()
+        .isEmail().withMessage('be a valid email')
+        .trim().escape(),
+    check('password').exists()
+        .isLength({ min: 8 }).withMessage('be at least 8 characters long')
+        .matches(/[A-Z]/).withMessage('contain an uppercase letter')
+        .matches(/[a-z]/).withMessage('contain a lowercase letter')
+        .matches(/\d/).withMessage('contain a number')
+        .trim().escape(),
+], (req, res) => {
+   const errs = validationResult(req);
+   if (!errs.isEmpty()) {
+       return res.render("signup", { email: req.body.email, name: req.body.name, errs: errs.array() });
+   }
     User.register(
-        { username: req.body.username, active: true },
+        { name: req.body.name, email: req.body.email, active: true },
         req.body.password
     );
     return res.redirect('/');

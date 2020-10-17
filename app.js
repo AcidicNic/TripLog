@@ -30,6 +30,11 @@ app.engine('hbs', hbs({
   layoutDir: __dirname + '/views',
   partialsDir: __dirname + '/views/partials',
   defaultLayout: 'base',
+  helpers: {
+    ifEqls: function(arg, arg2, options) {
+        return (arg == arg2) ? options.fn(this) : options.inverse(this);
+    }
+  }
 }));
 app.set('view engine', 'hbs');
 

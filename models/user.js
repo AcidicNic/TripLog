@@ -4,10 +4,10 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-    username: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, select: false },
-    logs: [ { type: Schema.Types.ObjectId, ref: 'logs' } ],
     name: { type: String },
+    logs: [ { type: Schema.Types.ObjectId, ref: 'logs' } ],
     createdAt: { type: Date },
     updatedAt: { type: Date },
 });
@@ -21,6 +21,6 @@ UserSchema.pre("save", function(next) {
     next();
 });
 
-UserSchema.plugin(passportLocalMongoose);
+UserSchema.plugin(passportLocalMongoose, {usernameField: 'email'});
 
 module.exports = mongoose.model("User", UserSchema);

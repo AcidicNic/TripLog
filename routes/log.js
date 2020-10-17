@@ -6,13 +6,14 @@ const connectEnsureLogin = require('connect-ensure-login');
 const Log = require('../models/log');
 const Dose = require('../models/dose');
 const User = require('../models/user');
+const Note = require('../models/note');
 
-/* Get create log page */
+/* GET create log form */
 router.get('/begin', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
-    return res.render("begin-form");
+    return res.render('begin-form');
 });
 
-/* Post create log */
+/* POST create log */
 router.post('/create', connectEnsureLogin.ensureLoggedIn(), [
     body('title').trim().escape(),
     body('desc').trim().escape(),
@@ -75,19 +76,38 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), [
     });
 });
 
+/* GET show log */
 router.get('/logs/:logId', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
-    if (!req.user.logs.includes(req.params.logId)) {
-        console.log("NOPE");
-        return res.redirect('/');
-    }
+    // if (!req.user.logs.includes(req.params.logId)) {
+    //     return res.redirect('/');
+    // }
     Log.findById(req.params.logId)
     .populate('doses').populate('notes').lean()
     .then(log => {
-        return res.render("log-show", { log });
+        console.log(log);
+        return res.render('log-show', { log });
+    })
+    .catch(err => {
+        console.log(err);
+        return res.redirect(`/`);
+    });
+});
+
+/* GET show archive */
+router.get('/archive', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+    User.findById(req.user._id)
+    .populate('logs').lean()
+    .then(user => {
+        return res.render('archive', { user });
     })
     .catch(err => {
         return res.redirect(`/`);
     });
+});
+
+/* GET show options */
+router.get('/options', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+    return res.render('options', {});
 });
 
 module.exports = router;

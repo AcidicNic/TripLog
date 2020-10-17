@@ -19,11 +19,11 @@
                 <span>Doses:</span><br>
                 {{#each log.doses}}
                     <!-- TODO: IF option for space between dose and unit -->
-                    <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#drugInfoModal{{dose.drug}}">{{ dose.dose }}{{ dose.unit }} of {{ dose.drug }}</button>
+                    <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#drugInfoModal{{this.drug}}">{{ this.dose }}{{ this.unit }} of {{ this.drug }}</button>
                 {{/each}}
 
                 <br>
-                <button type="button" class="btn btn-dark m-2">Log started on {{ log.start_date }} at {{ log.start_time }}</button>
+                <button type="button" class="btn btn-dark m-2">Log started on {{log.createdAt}}</button>
             </div>
             <div class="d-flex justify-content-between btn-row text-white">
                 <button type="button" class="btn btn-primary m-2" onclick="location.href='/';">Home</button>
@@ -40,6 +40,7 @@
         </div>
     </div>
 </div>
+
 <!-- Modals -->
 {{> help }}
 {{> add_dose }}
@@ -58,68 +59,64 @@
 <div id="note_container">
     <div class="row note">
         <div class="col-xs-1 align-middle text-center pl-1">
-            <span class='timestamp'>{{ log.start_time }}</span>
+            <span class='timestamp'>{{ log.createdAt }}</span>
         </div>
-        <div class='col-xl-11'>Welcome {{ log.username }}! So far you've had:<br>
-            {% for dose in log.doses %}
-                {{ dose.dose }}{{ dose.unit }} of {{ dose.drug }}<br>
-            {% endfor %}
+        <div class='col-xl-11'>Welcome {{ thisUser.username }}! So far you've had:<br>
+            {{#each log.doses}}
+                {{ this.dose }}{{ this.unit }} of {{ this.drug }}<br>
+            {{/each}}
         </div>
     </div>
-    {% for note in log.notes %}
-        {% if note.type == 'str'%}
-            <a data-toggle="modal" data-target="#editNoteModal{{note.id}}">
+    {{#each log.notes}}
+        {{#ifEqls this.type 'str'}}
+            <a data-toggle="modal" data-target="#editNoteModal{{this.id}}">
                 <div class="row note">
                     <div class="col-xs-1 align-middle text-center pl-1">
-                        <span class='timestamp'>{{ note.timestamp }}</span>
+                        <span class='timestamp'>{{ this.timestamp }}</span>
                     </div>
 <!--                    <div class='col-xl-11' style="white-space: pre-wrap;">-->
                     <div class='col-xl-11'>
-                        {{ note.content }}<br>
+                        {{ this.content }}<br>
                     </div>
-                    {% if note.edits %}
+                    {{#if this.edits}}
                             <span class="ml-4 pl-4"><strong>Edits:</strong></span><br>
-                            {% for edit in note['edits'] %}
+                            {{#each this.edits}}
                                 <div class="row note">
                                     <div class="col-xs-1 align-middle text-center pl-1">
-                                        <span class='timestamp'>{{ edit.timestamp }}</span>
+                                        <span class='timestamp'>{{ this.timestamp }}</span>
                                     </div>
-                                    <div class='col-xl-11' style="white-space: pre-wrap;">{{ edit.content }}</div>
+                                    <div class='col-xl-11' style="white-space: pre-wrap;">{{ this.content }}</div>
                                 </div>
-                            {% endfor %}
-                    {% endif %}
+                            {{/each}}
+                    {{/if}}
                 </div>
             </a>
-        {% elif note.type == 'question'%}
+        {{/ifEqls}}
+        {{#ifEqls this.type 'question'}}
             <div class="row note">
                 <div class="col-xs-1 align-middle text-center pl-1">
-                    <span class='timestamp'>{{ note.timestamp }}</span>
+                    <span class='timestamp'>{{ this.timestamp }}</span>
                 </div>
-                <div class='col-xl-11' style="white-space: pre-wrap;">{{ note.content }}</div>
+                <div class='col-xl-11' style="white-space: pre-wrap;">{{ this.content }}</div>
             </div>
-        {% elif note.type == 'img'%}
+        {{/ifEqls}}
+        <!-- {{#ifEqls this.type 'img'}}
             <div class="row note">
                 <div class="col-xs-1 align-middle text-center pl-1">
-                    <span class='timestamp'>{{ note.timestamp }}</span>
+                    <span class='timestamp'>{{ this.timestamp }}</span>
                 </div>
-                <div class='col-xl-11' ><img class="img" src="{{ url_for('static', filename='photos') }}/{{ note.content }}"/></div>
+                <div class='col-xl-11' ><img class="img" src="photos/{{ this.content }}"/></div>
             </div>
-        {% elif note.type == 'answer'%}
+        {{/ifEqls}} -->
+        {{#ifEqls this.type 'answer'}}
             <div class="row answer">
                 <div class="col-xs-1 align-middle text-center pl-1">
                     <span class='timestamp'>Ask The Caterpillar says...</span>
                 </div>
-                <div class='col-xl-11' style="white-space: pre-wrap;">{{ note.content }}</div>
+                <div class='col-xl-11' style="white-space: pre-wrap;">{{ this.content }}</div>
             </div>
-        {% elif note.type == 'hidden'%}
-            <div class="row note" style="display: none;">
-                <div class="col-xs-1 align-middle text-center pl-1">
-                    <span class='timestamp'>{{ note.timestamp }}</span>
-                </div>
-                <div class='col-xl-11' style="white-space: pre-wrap;">{{ note.content }}</div>
-            </div>
-        {% endif %}
-    {% endfor %}
+        {{/ifEqls}}
+    {{/each}}
 </div>
 
 <!-- Text Input -->
@@ -147,8 +144,8 @@
 <form method='POST' name='change_status' id='change_status' action='/logs/{{log._id}}'>
 </form>
 
+<script src="js/drug_list.js"></script>
 <script>
-// scroll to the bottom on pageload
-window.scrollTo(0,document.body.scrollHeight);
+    // scroll to the bottom on pageload
+    window.scrollTo(0,document.body.scrollHeight);
 </script>
-{% endblock %}
