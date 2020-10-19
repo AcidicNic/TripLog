@@ -6,6 +6,7 @@ const DoseSchema = new Schema({
     prettyName: { type: String },
     dose: { type: String },
     unit: { type: String },
+    log: { type: Schema.Types.ObjectId, ref: 'Log' },
     createdAt: { type: String },
 });
 

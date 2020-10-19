@@ -26,7 +26,7 @@
                 <button type="button" class="btn btn-primary m-2" onclick="location.href='/';">Home</button>
                 <button type="button" class="btn btn-danger m-2" data-toggle="modal" data-target="#helpModal">Need Help?</button>
                 <button type="button" class="btn btn-success m-2" data-toggle="modal" data-target="#addDoseModal">Add Dose</button>
-                <button type="button" class="btn btn-secondary m-2" onclick="location.href='/logs/{{ log._id }}/edit';">Edit</button>
+                <!-- <button type="button" class="btn btn-secondary m-2" onclick="location.href='/logs/{{ log._id }}/edit';">Edit</button> -->
 
                 {{#if log.status}}
                     <button type="submit" class="btn btn-warning m-2" name="update" value="status" form='change_status'>Mark Completed</button>
@@ -75,7 +75,6 @@
                     </div>
                     <div class='col-xl-11 show-whitespace'>{{ this.content }}</div>
                     {{#if this.edits}}
-                            <span class="ml-4 pl-4"><strong>Edits:</strong></span><br>
                             {{#each this.edits}}
                                 <div class="row note">
                                     <div class="col-xs-1 align-middle text-center pl-1">

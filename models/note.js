@@ -5,6 +5,7 @@ const NoteSchema = new Schema({
     content: { type: String, required: true },
     format: { type: String },
     edits: [ this ],
+    log: { type: Schema.Types.ObjectId, ref: 'Log' },
     timestamp: { type: Date },
 });
 

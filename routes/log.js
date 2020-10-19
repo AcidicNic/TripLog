@@ -30,14 +30,16 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
             const welcomeNote = new Note({
                 content: `Welcome, ${req.user.name}!\nYou can use the dropdown menu on the top left to add a dose!`,
                 format: "msgToUser",
+                log: log._id,
             });
             welcomeNote.save( (err, note) => {
                 if (err) throw err;
                 Log.updateOne(
                     { _id: log._id },
-                    { $push: { notes: note } },
-                    (err, log) => { if (err) throw err; }
-                );
+                    { $push: { notes: note } })
+                .then( (err, log) => {
+                    return res.redirect(`/logs/${log._id}`);
+                });
             });
         } else if (Array.isArray(req.body.drug)) {
             var msgStr = ""
@@ -48,6 +50,7 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
                     drug: req.body.drug[i],
                     dose: req.body.dose[i],
                     unit: req.body.unit[i],
+                    log: log._id,
                     prettyName: await prettyName,
                 }));
                 msgStr += `\n${req.body.dose[i]}${req.body.unit[i]} of ${prettyName}`
@@ -58,14 +61,16 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
                 const welcomeNote = new Note({
                     content: `Welcome, ${req.user.name}! So far you've had:${msgStr}`,
                     format: "msgToUser",
+                    log: log._id,
                 });
                 welcomeNote.save( (err, note) => {
                     if (err) throw err;
                     Log.updateOne(
                         { _id: log._id },
-                        { $push: { notes: note, doses: doseArr } },
-                        (err, log) => { if (err) throw err; }
-                    );
+                        { $push: { notes: note, doses: doseArr } })
+                    .then( (err, log) => {
+                        return res.redirect(`/logs/${log._id}`);
+                    });
                 });
             })
         } else {
@@ -78,29 +83,32 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
                 drug: req.body.drug,
                 dose: req.body.dose,
                 unit: req.body.unit,
+                log: log._id,
                 prettyName: await prettyName,
             });
             dose.save((err, dose) => {
                 const welcomeNote = new Note({
                     content: `Welcome, ${req.user.name}! So far you've had:\n${req.body.dose}${req.body.unit} of ${prettyName}`,
                     format: "msgToUser",
+                    log: log._id,
                 });
                 welcomeNote.save( (err, note) => {
                     if (err) throw err;
                     Log.updateOne(
                         { _id: log._id },
-                        { $push: { notes: note, doses: dose } },
-                        (err, log) => { if (err) throw err; }
-                    );
+                        { $push: { notes: note, doses: dose } })
+                    .then( (err, log) => {
+                        return res.redirect(`/logs/${log._id}`);
+                    });
                 });
             })
         }
         User.updateOne(
             { _id: req.user._id },
-            { $push: { logs: log } },
-            (err, log) => { if (err) throw err; }
-        );
-        return res.redirect(`/logs/${log._id}`);
+            { $push: { logs: log } }).
+            then( (err, user) => {
+                return res.redirect(`/logs/${log._id}`);
+            });
     });
 });
 
@@ -120,6 +128,7 @@ router.get('/logs/:logId', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
     });
 });
 
+/* POST add single dose */
 router.post('/logs/:logId/addDose', connectEnsureLogin.ensureLoggedIn(), async(req, res) => {
     if (req.user.logs.indexOf(req.params.logId) < 0) {
         return res.redirect(`/`);
@@ -130,6 +139,7 @@ router.post('/logs/:logId/addDose', connectEnsureLogin.ensureLoggedIn(), async(r
             drug: req.body.drug,
             dose: req.body.dose,
             unit: req.body.unit,
+            log: req.params.logId,
             prettyName: prettyName,
         });
         newDose.save((err, dose) => {
@@ -139,6 +149,7 @@ router.post('/logs/:logId/addDose', connectEnsureLogin.ensureLoggedIn(), async(r
             const doseNoteObj = new Note({
                 content: doseNoteStr,
                 format: "msgToUser",
+                log: req.params.logId,
             });
             doseNoteObj.save((err, doseNote) => {
                 Log.updateOne(
@@ -152,6 +163,7 @@ router.post('/logs/:logId/addDose', connectEnsureLogin.ensureLoggedIn(), async(r
     } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
 });
 
+/* POST update status */
 router.post('/logs/:logId/status', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
     if (req.user.logs.indexOf(req.params.logId) < 0) {
         return res.redirect(`/`);
@@ -162,6 +174,7 @@ router.post('/logs/:logId/status', connectEnsureLogin.ensureLoggedIn(), (req, re
         const newStatusNote = new Note({
             content: statusTxt,
             format: "msgToUser",
+            log: req.params.logId,
         });
         newStatusNote.save((err, statusNote) => {
             Log.updateOne(
@@ -174,6 +187,7 @@ router.post('/logs/:logId/status', connectEnsureLogin.ensureLoggedIn(), (req, re
     } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
 });
 
+/* POST add edit note */
 router.post('/logs/:logId/editNote', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
     if (req.user.logs.indexOf(req.params.logId) < 0) {
         return res.redirect(`/`);
@@ -183,7 +197,11 @@ router.post('/logs/:logId/editNote', connectEnsureLogin.ensureLoggedIn(), (req, 
         if (editNoteContent.length < 1) {
             return res.redirect(`/logs/${req.params.logId}`);
         }
-        const newEdit = new Note({ content: editNoteContent.trim(), format: "str" });
+        const newEdit = new Note({
+            content: editNoteContent.trim(),
+            format: "str",
+            log: req.params.logId,
+        });
         newEdit.save((err, noteEdit) => {
             Note.updateOne(
                 { _id: req.body.noteId },
@@ -195,6 +213,7 @@ router.post('/logs/:logId/editNote', connectEnsureLogin.ensureLoggedIn(), (req, 
     } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
 });
 
+/* POST add note */
 router.post('/logs/:logId/addNote', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
     if (req.user.logs.indexOf(req.params.logId) < 0) {
         return res.redirect(`/`);
@@ -202,7 +221,11 @@ router.post('/logs/:logId/addNote', connectEnsureLogin.ensureLoggedIn(), (req, r
     try {
         const noteTxt = req.body.note;
         if (noteTxt && noteTxt != "" && noteTxt.length > 1) {
-            const newNote = new Note({ content: noteTxt.trim(), format: "str" });
+            const newNote = new Note({
+                content: noteTxt.trim(),
+                format: "str",
+                log: req.params.logId,
+            });
             newNote.save((err, note) => {
                 Log.updateOne(
                     { _id: req.params.logId },
@@ -217,6 +240,7 @@ router.post('/logs/:logId/addNote', connectEnsureLogin.ensureLoggedIn(), (req, r
     } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
 });
 
+/* POST edit lot title/desc */
 router.post('/logs/:logId/editDetails', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
     if (req.user.logs.indexOf(req.params.logId) < 0) {
         return res.redirect(`/`);
@@ -231,9 +255,113 @@ router.post('/logs/:logId/editDetails', connectEnsureLogin.ensureLoggedIn(), (re
     } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
 });
 
-// router.post('/logs/:logId/delete', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
-//     // TODO
-// })
+/* POST edit log title, desc, & doses */
+// router.post('/logs/:logId/editLog', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+//     if (req.user.logs.indexOf(req.params.logId) < 0) {
+//         return res.redirect(`/`);
+//     }
+//     try {
+//         if (!req.body.drug || !tripping) {
+//             const updateNote = new Note({
+//                 content: `Log updated. There are currently no doses.`,
+//                 format: "msgToUser",
+//                 log: log._id,
+//             });
+//             updateNote.save().then( (err, note) => {
+//                 Log.updateOne(
+//                     { _id: log._id },
+//                     { $push: { notes: note },
+//                     $set: { title: req.body.title, desc: req.body.desc } })
+//                     .then( (err, log) => {
+//                         return res.redirect(`/logs/${req.params.logId}`);
+//                     });
+//                 );
+//             });
+//         } else if (Array.isArray(req.body.drug)) {
+//             var msgStr = ""
+//             var doseArr = [];
+//             for (i = 0; i < req.body.drug.length; i++) {
+//                 prettyName = await getPrettyName(req.body.drug[i]);
+//                 doseArr.push(new Dose({
+//                     drug: req.body.drug[i],
+//                     dose: req.body.dose[i],
+//                     unit: req.body.unit[i],
+//                     log: log._id,
+//                     prettyName: await prettyName,
+//                 }));
+//                 msgStr += `\n${req.body.dose[i]}${req.body.unit[i]} of ${prettyName}`
+//             }
+//             Dose.insertMany(doseArr, (err, doses) => {
+//                 const doseMsg = new Note({
+//                     content: `You've updated your doses! ${req.user.name}! So far you've had:${msgStr}`,
+//                     format: "msgToUser",
+//                     log: log._id,
+//                 });
+//                 doseMsg.save( (err, note) => {
+//                     Log.updateOne(
+//                         { _id: log._id },
+//                         { $push: { notes: note}, $set: {doses: doses} })
+//                     .then( (err, log) => {
+//
+//                     });
+//                 });
+//             })
+//         } else {
+//             try {
+//                 var prettyName = await getPrettyName(req.body.drug);
+//             } catch (err) {
+//                 var prettyName = null;
+//             }
+//             const dose = new Dose({
+//                 drug: req.body.drug,
+//                 dose: req.body.dose,
+//                 unit: req.body.unit,
+//                 log: log._id,
+//                 prettyName: await prettyName,
+//             });
+//             dose.save((err, dose) => {
+//                 const welcomeNote = new Note({
+//                     content: `Welcome, ${req.user.name}! So far you've had:\n${req.body.dose}${req.body.unit} of ${prettyName}`,
+//                     format: "msgToUser",
+//                     log: log._id,
+//                 });
+//                 welcomeNote.save( (err, note) => {
+//                     if (err) throw err;
+//                     Log.updateOne(
+//                         { _id: log._id },
+//                         { $push: { notes: note, doses: dose } },
+//                         (err, log) => { if (err) throw err; }
+//                     );
+//                 });
+//             })
+//         }
+//         Log.updateOne(
+//             { _id: req.params.logId },
+//             { title: req.body.title, desc: req.body.desc }
+//         ).then( (err, log) => {
+//             return  res.redirect(`/logs/${req.params.logId}`);
+//         });
+//     } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
+// });
+
+/* POST delete log */
+router.post('/logs/:logId/delete', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+    if (req.user.logs.indexOf(req.params.logId) < 0) {
+        return res.redirect(`/`);
+    }
+    try {
+        Log.findOneAndRemove({ _id: req.params.logId })
+        .then( (err, log) => {
+            Dose.deleteMany({ log: req.params.logId })
+            .then( (err, dose) => {
+                Note.deleteMany({ log: req.params.logId })
+                .then( (err, log) => {
+                    return res.redirect(`/?msg=Your log has successfully been deleted!`);
+                });
+            })
+        });
+    } catch (err) { if (err) { console.log(err); return res.redirect('/?err=Oops, something went wrong!'); } }
+});
 
 /* GET show archive */
 router.get('/archive', connectEnsureLogin.ensureLoggedIn(), (req, res) => {

@@ -34,19 +34,7 @@ app.engine('hbs', hbs({
         // {{#ifEqls true false}} this will not be displayed {{/ifEqls}}
         ifEqls: function(arg, arg2, options) {
         return (arg == arg2) ? options.fn(this) : options.inverse(this);
-        },
-        // {{{prettyDate Date()}}}
-        prettyDate: function(date) {
-
-        },
-        // {{{prettyTime Date()}}}
-        prettyTime: function(date) {
-
-        },
-        // {{{timeSince Date()}}}
-        timeSince: function(date) {
-
-        },
+        }
     }
 }));
 app.set('view engine', 'hbs');
