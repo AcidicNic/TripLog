@@ -4,16 +4,17 @@ const Schema = mongoose.Schema;
 const NoteSchema = new Schema({
     content: { type: String, required: true },
     type: { type: String },
-    edits: [ this ],
-    createdAt: { type: Date },
-    updatedAt: { type: Date },
+    edits: [ { type: String } ],
+    timestamp: { type: Date },
 });
 
 NoteSchema.pre("save", function(next) {
     const now = new Date();
-    this.updatedAt = now;
-    if (!this.createdAt) {
-        this.createdAt = now;
+    if (!this.timestamp) {
+        this.timestamp = now;
+    }
+    if (!this.type) {
+        this.type = 'str';
     }
     next();
 });

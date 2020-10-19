@@ -18,17 +18,33 @@
     </div>
 </div>
 
-{{#each logs}}
+{{#each user.logs}}
 <div class="card log_card mb-2">
     <div class="card-body">
         <h5 class="card-title">{{ this.title }}</h5>
         <p class="card-text">{{ this.desc }}</p>
         <a href="/logs/{{this._id}}" class="btn btn-primary float-right">View Log</a>
         <button type='submit' form='delete_form' class='btn btn-danger float-right mr-2'>Delete</button>
-        <p class="card-text">{{ this.createdAt }}</p>
+        <p class="card-text"><span class="prettyDate">{{ this.createdAt }}</span></p>
     </div>
 </div>
 <form method='POST' id='delete_form' action='/logs/{{this._id}}/delete'>
     <input type='hidden' name='_method' value='DELETE'>
 </form>
 {{/each}}
+
+<script type="text/javascript" src="https://momentjs.com/downloads/moment.js"></script>
+<script type="text/javascript" src="https://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+<script type="text/javascript">
+    function prettyDates() {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        $(".prettyDate").each( function(ele) {
+            var dateTime = new Date($(this).text());
+            var prettyTime = moment(dateTime).tz(timezone).format("LLLL");
+            $(this).text(prettyTime);
+        });
+    }
+    window.onload = function() {
+        prettyDates();
+    }
+</script>

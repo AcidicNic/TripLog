@@ -21,19 +21,20 @@ router.post('/login', [
         .matches(/[a-z]/).withMessage('contain a lowercase letter')
         .matches(/\d/).withMessage('contain a number')
         .trim().escape(),
-],
- (req, res, next) => {
+    ], (req, res, next) => {
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
         return res.render("login", { email: req.body.email, errs: errs.array() });
     }
-    passport.authenticate('local',
-    (err, user, info) => {
+    passport.authenticate('local', (err, user, info) => {
         if (err) { return next(err); }
+        console.log(user);
+        console.log(info);
+        console.log(err);
         if (!user) {
             return res.render("login", {
                 email: req.body.email,
-                errs: [{msg: "Incorrect email or password. :("}]
+                errs: [{msg: "Incorrect email or password!"}]
             });
         }
         req.logIn(user, function(err) {
@@ -67,16 +68,12 @@ router.post('/signup', [
         .matches(/[A-Z]/).withMessage('contain an uppercase letter')
         .matches(/[a-z]/).withMessage('contain a lowercase letter')
         .matches(/\d/).withMessage('contain a number')
-        .trim().escape(),
-], (req, res) => {
-   const errs = validationResult(req);
-   if (!errs.isEmpty()) {
-       return res.render("signup", { email: req.body.email, name: req.body.name, errs: errs.array() });
-   }
-    User.register(
-        { name: req.body.name, email: req.body.email, active: true },
-        req.body.password
-    );
+        .trim().escape() ], (req, res) => {
+    const errs = validationResult(req);
+    if (!errs.isEmpty()) {
+        return res.render("signup", { email: req.body.email, name: req.body.name, errs: errs.array() });
+    }
+    User.register({ name: req.body.name, email: req.body.email, active: true }, req.body.password);
     return res.redirect('/');
 });
 

@@ -18,29 +18,29 @@
                         {{ this.content }}<br>
                     </div>
                     {{#if this.edits}}
-                            <span class="ml-4 pl-4"><strong>Edits:</strong></span><br>
-                            {{#each this.edits}}
-                                <div class="row note">
-                                    <div class="col-xs-1 align-middle text-center pl-1">
-                                        <span class='timestamp'>{{ this.timestamp }}</span>
-                                    </div>
-                                    <div class='col-xl-11' style="white-space: pre-wrap;">{{ this.content }}</div>
+                        <span class="ml-4 pl-4"><strong>Edits:</strong></span><br>
+                        {{#each this.edits}}
+                            <div class="row note">
+                                <div class="col-xs-1 align-middle text-center pl-1">
+                                    <span class='time noteTime timestamp'>{{ this.timestamp }}</span>
                                 </div>
-                            {{/each}}
+                                <div class='col-xl-11 show-whitespace'>{{ this.content }}</div>
+                            </div>
+                        {{/each}}
                     {{/if}}
                 </div>
 
                 <div class="input-group text_input_div mt-4">
-                    <textarea name='addon' form='edit_note_form{{this._id}}' class="form-control type_note edit_note_input" onkeyup="textAreaAdjust(this)"></textarea>
+                    <textarea name='editNoteText' form='edit_note_form{{this._id}}' class="form-control type_note edit_note_input" onkeyup="textAreaAdjust(this)"></textarea>
 
                 </div>
-                <form method="POST" id="edit_note_form{{this._id}}" action="/logs/{{ log._id }}">
-                    <input type='hidden' name='note_id' value='{{ note.id }}'/>
+                <form method="POST" id="edit_note_form{{this._id}}" action="/logs/{{ @root.log._id }}" onsubmit="document.getElementById('edit_note_submit{{this._id}}').disabled=true;">
+                    <input type='hidden' name='noteId' value='{{ this._id }}'/>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary float-left" data-dismiss="modal">Close</button>
-                <button type='submit' name="update_btn" value="edit_note" form="edit_note_form{{this._id}}" class='btn btn-success mt-2 float-right'>Add Edit</button>
+                <button type="submit" name="update" value="edit_note" id='edit_note_submit{{this._id}}' form='edit_note_form{{this._id}}' class='btn btn-success mt-2 float-right'>Add Edit</button>
             </div>
         </div>
     </div>

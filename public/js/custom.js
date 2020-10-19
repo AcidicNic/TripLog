@@ -19,6 +19,7 @@ const drugs = new Bloodhound({
     local: drug_list
 });
 drugs.initialize();
+initDrugAutocomplete();
 
 function showDoses() {
     if (document.getElementById('currently_tripping_check').checked) {
@@ -76,8 +77,6 @@ function rmDose(input) {
 }
 
 function initDrugAutocomplete() {
-    // $(".twitter-typeahead").addClass("drug_dropdown");
-    // $(".tt-hint").addClass("drug_dropdown");
     $('.drug_dropdown').typeahead('destroy');
     $('.drug_dropdown').typeahead(
         {

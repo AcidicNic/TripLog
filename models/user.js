@@ -7,7 +7,7 @@ const UserSchema = new Schema({
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, select: false },
     name: { type: String },
-    logs: [ { type: Schema.Types.ObjectId, ref: 'logs' } ],
+    logs: [ { type: Schema.Types.ObjectId, ref: 'Log' } ],
     createdAt: { type: Date },
     updatedAt: { type: Date },
 });

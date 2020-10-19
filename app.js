@@ -23,23 +23,35 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressSession);
 
-app.use(express.json());
+// app.use(express.json());
 
 app.engine('hbs', hbs({
-  extname: '.hbs',
-  layoutDir: __dirname + '/views',
-  partialsDir: __dirname + '/views/partials',
-  defaultLayout: 'base',
-  helpers: {
-    ifEqls: function(arg, arg2, options) {
+    extname: '.hbs',
+    layoutDir: __dirname + '/views',
+    partialsDir: __dirname + '/views/partials',
+    defaultLayout: 'base',
+    helpers: {
+        // {{#ifEqls true false}} this will not be displayed {{/ifEqls}}
+        ifEqls: function(arg, arg2, options) {
         return (arg == arg2) ? options.fn(this) : options.inverse(this);
+        },
+        // {{{prettyDate Date()}}}
+        prettyDate: function(date) {
+
+        },
+        // {{{prettyTime Date()}}}
+        prettyTime: function(date) {
+
+        },
+        // {{{timeSince Date()}}}
+        timeSince: function(date) {
+
+        },
     }
-  }
 }));
 app.set('view engine', 'hbs');
 
 app.use(express.static(path.normalize(path.join(__dirname, 'public'))));
-
 // Database Setup
 require('./data/db');
 
@@ -55,7 +67,9 @@ passport.deserializeUser(User.deserializeUser());
 
 // pass thisUser to every template to every route
 app.use(function(req, res, next) {
-    res.locals.thisUser = req.user;
+    if (req.user) {
+        res.locals.thisUser = req.user.name;
+    }
     next();
 });
 

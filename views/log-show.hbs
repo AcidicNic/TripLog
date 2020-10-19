@@ -1,5 +1,3 @@
-<!-- current_log.hbs -->
-
 <!-- Collapsable Hamburger Navbar -->
 <div class="pos-f-t sticky-top mb-4">
     <nav class="navbar navbar-dark bg-dark">
@@ -15,15 +13,14 @@
     <div class="collapse" id="navbarToggleExternalContent">
         <div class="bg-dark p-2">
             <div class="text-white text-center">
-                <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#editDescModal">{{ log.desc }}</button><br>
+                <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#editDetailsModal">{{ log.desc }}</button><br>
                 <span>Doses:</span><br>
                 {{#each log.doses}}
                     <!-- TODO: IF option for space between dose and unit -->
-                    <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#drugInfoModal{{this.drug}}">{{ this.dose }}{{ this.unit }} of {{ this.drug }}</button>
+                    <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#drugInfoModal{{this.drug}}">{{ this.dose }}{{ this.unit }} of {{this.drug}} ({{ this.prettyName }})</button>
                 {{/each}}
-
                 <br>
-                <button type="button" class="btn btn-dark m-2">Log started on {{log.createdAt}}</button>
+                <button type="button" class="btn btn-dark m-2">Log started on <span class="prettyDate">{{log.createdAt}}</span></button>
             </div>
             <div class="d-flex justify-content-between btn-row text-white">
                 <button type="button" class="btn btn-primary m-2" onclick="location.href='/';">Home</button>
@@ -32,9 +29,9 @@
                 <button type="button" class="btn btn-secondary m-2" onclick="location.href='/logs/{{ log._id }}/edit';">Edit</button>
 
                 {{#if log.status}}
-                    <button type="submit" class="btn btn-warning m-2" name="update_btn" value="status" form='change_status'>Mark Completed</button>
+                    <button type="submit" class="btn btn-warning m-2" name="update" value="status" form='change_status'>Mark Completed</button>
                 {{else}}
-                    <button type="submit" class="btn btn-warning m-2" name="update_btn" value="status" form='change_status'>Reopen Log</button>
+                    <button type="submit" class="btn btn-warning m-2" name="update" value="status" form='change_status'>Reopen Log</button>
                 {{/if}}
             </div>
         </div>
@@ -43,63 +40,79 @@
 
 <!-- Modals -->
 {{> help }}
-{{> add_dose }}
-{{> edit_desc }}
+{{> addDose }}
+{{> editDetails }}
 
 {{#each log.doses}}
-    {{> drug_info }}
+    {{#if this.prettyName}}
+        {{> drugInfo }}
+    {{/if}}
 {{/each}}
 
 {{#each log.notes}}
-    {{> edit_note }}
+    {{> editNote }}
 {{/each}}
 
 
 <!-- Notes -->
 <div id="note_container">
-    <div class="row note">
+    <!-- <div class="row answer">
         <div class="col-xs-1 align-middle text-center pl-1">
-            <span class='timestamp'>{{ log.createdAt }}</span>
+            <span class='timestamp prettyDate'>{{ log.createdAt }}</span> (<span class='timestamp noteTime'>{{ log.createdAt }}</span>)
         </div>
-        <div class='col-xl-11'>Welcome {{ thisUser.username }}! So far you've had:<br>
+        <div class='col-xl-11'>Welcome {{ log.owner.name }}! So far you've had:<br>
             {{#each log.doses}}
-                {{ this.dose }}{{ this.unit }} of {{ this.drug }}<br>
+                {{ this.dose }}{{ this.unit }} of {{ this.prettyName }}<br>
             {{/each}}
         </div>
-    </div>
+    </div> -->
     {{#each log.notes}}
         {{#ifEqls this.type 'str'}}
-            <a data-toggle="modal" data-target="#editNoteModal{{this.id}}">
+            <a data-toggle="modal" data-target="#editNoteModal{{this._id}}">
                 <div class="row note">
                     <div class="col-xs-1 align-middle text-center pl-1">
-                        <span class='timestamp'>{{ this.timestamp }}</span>
+                        <span class='time noteTime timestamp'>{{ this.timestamp }}</span>
                     </div>
-<!--                    <div class='col-xl-11' style="white-space: pre-wrap;">-->
-                    <div class='col-xl-11'>
-                        {{ this.content }}<br>
-                    </div>
+                    <div class='col-xl-11 show-whitespace'>{{ this.content }}</div>
                     {{#if this.edits}}
                             <span class="ml-4 pl-4"><strong>Edits:</strong></span><br>
                             {{#each this.edits}}
                                 <div class="row note">
                                     <div class="col-xs-1 align-middle text-center pl-1">
-                                        <span class='timestamp'>{{ this.timestamp }}</span>
+                                        <span class='time noteTime timestamp'>{{ this.timestamp }}</span>
                                     </div>
-                                    <div class='col-xl-11' style="white-space: pre-wrap;">{{ this.content }}</div>
+                                    <div class='col-xl-11 show-whitespace'>{{ this.content }}</div>
                                 </div>
                             {{/each}}
                     {{/if}}
                 </div>
             </a>
         {{/ifEqls}}
-        {{#ifEqls this.type 'question'}}
-            <div class="row note">
+        {{#ifEqls this.type 'msgToUser'}}
+            <div class="row answer">
                 <div class="col-xs-1 align-middle text-center pl-1">
-                    <span class='timestamp'>{{ this.timestamp }}</span>
+                    <span class='timestamp prettyDate'>{{ this.createdAt }}</span> (<span class='timestamp noteTime'>{{ this.createdAt }}</span>)
                 </div>
-                <div class='col-xl-11' style="white-space: pre-wrap;">{{ this.content }}</div>
+                <div class='col-xl-11 show-whitespace'>{{ this.content }}</div>
             </div>
         {{/ifEqls}}
+    {{/each}}
+        <!-- {{#ifEqls this.type 'question'}}
+            <div class="row note">
+                <div class="col-xs-1 align-middle text-center pl-1">
+                    <span class='time noteTime timestamp'>{{ this.timestamp }}</span>
+                </div>
+                <div class='col-xl-11'>{{this.content}}</div>
+            </div>
+        {{/ifEqls}} -->
+        <!-- {{#ifEqls this.type 'answer'}}
+            <div class="row answer">
+                <div class="col-xs-1 align-middle text-center pl-1">
+                    <span class='time noteTime timestamp'>Ask The Caterpillar says...</span>
+                </div>
+                <div class='col-xl-11'>{{ this.content }}</div>
+            </div>
+        {{/ifEqls}} -->
         <!-- {{#ifEqls this.type 'img'}}
             <div class="row note">
                 <div class="col-xs-1 align-middle text-center pl-1">
@@ -108,15 +121,6 @@
                 <div class='col-xl-11' ><img class="img" src="photos/{{ this.content }}"/></div>
             </div>
         {{/ifEqls}} -->
-        {{#ifEqls this.type 'answer'}}
-            <div class="row answer">
-                <div class="col-xs-1 align-middle text-center pl-1">
-                    <span class='timestamp'>Ask The Caterpillar says...</span>
-                </div>
-                <div class='col-xl-11' style="white-space: pre-wrap;">{{ this.content }}</div>
-            </div>
-        {{/ifEqls}}
-    {{/each}}
 </div>
 
 <!-- Text Input -->
@@ -136,16 +140,44 @@
     </div>
 </div>
 
-<form method='POST' name='add_note' id='add_note' action='/logs/{{log._id}}' enctype='multipart/form-data'>
-        <input type='hidden' name='_method' value='PUT'/>
-        <input type='hidden' name='update_btn' value='add_note'/>
+<form method='POST' name='add_note' id='add_note' action='/logs/{{log._id}}'>
+        <input type='hidden' name='update' value='add_note'/>
 </form>
 
 <form method='POST' name='change_status' id='change_status' action='/logs/{{log._id}}'>
 </form>
 
-<script src="js/drug_list.js"></script>
+<script src="/js/drug_list.js"></script>
+<script type="text/javascript" src="https://momentjs.com/downloads/moment.js"></script>
+<script type="text/javascript" src="https://momentjs.com/downloads/moment-timezone-with-data.js"></script>
+
 <script>
-    // scroll to the bottom on pageload
-    window.scrollTo(0,document.body.scrollHeight);
+    function prettyDates() {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        $(".prettyDate").each( function(ele) {
+            var dateTime = new Date($(this).text());
+            var prettyTime = moment(dateTime).tz(timezone).format("LLLL");
+            $(this).text(prettyTime);
+        });
+    }
+    function prettyTimestamps() {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        $(".noteTime").each( function(ele) {
+            var timeStr = new Date($(this).text());
+            var prettyTime = moment(timeStr).tz(timezone).fromNow();
+            $(this).text(prettyTime);
+        });
+    }
+    function submitThenClear(formId, textareaId) {
+        console.log('hello?');
+        $(`#${formId}`).submit();
+        $(`#${textareaId}`).val("");
+        $(`#${formId}`).reset();
+    }
+    window.onload = function() {
+        // scroll to the bottom on pageload
+        window.scrollTo(0,document.body.scrollHeight);
+        prettyDates();
+        prettyTimestamps();
+    };
 </script>

@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const DoseSchema = new Schema({
     drug: { type: String },
+    prettyName: { type: String },
     dose: { type: String },
     unit: { type: String },
     createdAt: { type: String },

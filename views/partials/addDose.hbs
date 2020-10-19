@@ -1,0 +1,54 @@
+<!-- Add Dose Modal -->
+<div class="modal fade" id="addDoseModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Dose</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="add_dose_form" action="/logs/{{ log._id }}">
+                    <div id="dose_wrapper">
+                        <div class="mx-auto w-75">
+                            <input type="text" class='form-control drug_dropdown' name='drug' autocomplete=off placeholder="Drug"/>
+                            <div class="input-group">
+                                <input type="text" class='form-control unit_dropdown' name='dose' autocomplete=off placeholder="Dose"/>
+                                <input type="text" class='form-control dose_dropdown' name='unit' autocomplete=off placeholder="Unit"/>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary float-left" data-dismiss="modal">Close</button>
+                <button type='submit' name="update" value="add_dose" form="add_dose_form" class='btn btn-success mt-2 float-right'>Add Dose</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- <script>
+    const drugs = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        local: drug_list
+    });
+    drugs.initialize();
+    initDrugAutocomplete();
+
+    function initDrugAutocomplete() {
+        $('.drug_dropdown').typeahead(
+            {
+                hint: true,
+                highlight: true,
+                minLength: 1
+            },
+            {
+                name: 'drugs',
+                source: drugs
+            }
+        );
+    }
+    initDrugAutocomplete()
+</script> -->
