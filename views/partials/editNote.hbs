@@ -31,16 +31,17 @@
                 </div>
 
                 <div class="input-group text_input_div mt-4">
-                    <textarea name='editNoteText' form='edit_note_form{{this._id}}' class="form-control type_note edit_note_input" onkeyup="textAreaAdjust(this)"></textarea>
+                    <textarea name='editNoteText' minlength='1' form='edit_note_form{{this._id}}' class="form-control type_note edit_note_input" onkeyup="textAreaAdjust(this)"></textarea>
 
                 </div>
-                <form method="POST" id="edit_note_form{{this._id}}" action="/logs/{{ @root.log._id }}" onsubmit="document.getElementById('edit_note_submit{{this._id}}').disabled=true;">
+                <form method="POST" id="edit_note_form{{this._id}}" action="/logs/{{ @root.log._id }}/editNote" onsubmit="document.getElementById('edit_note_submit{{this._id}}').disabled=true;">
                     <input type='hidden' name='noteId' value='{{ this._id }}'/>
+                    <input type="hidden" name="update" value="edit_note">
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary float-left" data-dismiss="modal">Close</button>
-                <button type="submit" name="update" value="edit_note" id='edit_note_submit{{this._id}}' form='edit_note_form{{this._id}}' class='btn btn-success mt-2 float-right'>Add Edit</button>
+                <button type="submit" id='edit_note_submit{{this._id}}' form='edit_note_form{{this._id}}' class='btn btn-success mt-2 float-right'>Add Edit</button>
             </div>
         </div>
     </div>

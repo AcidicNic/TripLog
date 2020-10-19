@@ -1,12 +1,28 @@
 <!-- login.hbs -->
+{{#if errs}}
+<div class="mt-4">
 {{#each errs}}
-    <div class="alert alert-warning alert-dismissible fade show mb-2 w-75 mx-auto" role="alert">
+    <div class="alert alert-warning alert-dismissible fade show my-2 w-50 mx-auto" role="alert">
       {{this.msg}}
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
 {{/each}}
+</div>
+{{/if}}
+{{#if msgs}}
+<div class="mt-4">
+{{#each msgs}}
+    <div class="alert alert-success alert-dismissible fade show my-2 w-50 mx-auto" role="alert">
+      {{this}}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+{{/each}}
+</div>
+{{/if}}
 
 <div class="title_container mt-4 card text-center mx-auto">
     <div class="card-body">

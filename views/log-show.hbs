@@ -67,7 +67,7 @@
         </div>
     </div> -->
     {{#each log.notes}}
-        {{#ifEqls this.type 'str'}}
+        {{#ifEqls this.format 'str'}}
             <a data-toggle="modal" data-target="#editNoteModal{{this._id}}">
                 <div class="row note">
                     <div class="col-xs-1 align-middle text-center pl-1">
@@ -88,7 +88,7 @@
                 </div>
             </a>
         {{/ifEqls}}
-        {{#ifEqls this.type 'msgToUser'}}
+        {{#ifEqls this.format 'msgToUser'}}
             <div class="row answer">
                 <div class="col-xs-1 align-middle text-center pl-1">
                     <span class='timestamp prettyDate'>{{ this.createdAt }}</span> (<span class='timestamp noteTime'>{{ this.createdAt }}</span>)
@@ -140,11 +140,12 @@
     </div>
 </div>
 
-<form method='POST' name='add_note' id='add_note' action='/logs/{{log._id}}'>
+<form method='POST' name='add_note' id='add_note' action='/logs/{{log._id}}/addNote'>
         <input type='hidden' name='update' value='add_note'/>
 </form>
 
-<form method='POST' name='change_status' id='change_status' action='/logs/{{log._id}}'>
+<form method='POST' name='change_status' id='change_status' action='/logs/{{log._id}}/status'>
+    <input type="hidden" name="currentStatus" value="{{log.status}}">
 </form>
 
 <script src="/js/drug_list.js"></script>

@@ -9,7 +9,7 @@
             </div>
             <div class="modal-body">
                 <div id="dose_wrapper">
-                    <form method="POST" id="edit_desc_form" action="/logs/{{ log._id }}">
+                    <form method="POST" id="edit_desc_form" action="/logs/{{ log._id }}/editDetails">
                         <div class="form_div mb-3">
                             <label class='form_label' for='form_title'>Log Title</label><br>
                             <input class='form-control form_input' id='form_title' type='text' name='title' placeholder='Experience Title' value="{{ log.title }}"/>

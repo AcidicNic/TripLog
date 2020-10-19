@@ -29,13 +29,13 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
         if (!req.body.drug || !tripping) {
             const welcomeNote = new Note({
                 content: `Welcome, ${req.user.name}!\nYou can use the dropdown menu on the top left to add a dose!`,
-                type: "msgToUser",
+                format: "msgToUser",
             });
             welcomeNote.save( (err, note) => {
                 if (err) throw err;
                 Log.updateOne(
                     { _id: log._id },
-                    { $push: { notes: note, doses: dose } },
+                    { $push: { notes: note } },
                     (err, log) => { if (err) throw err; }
                 );
             });
@@ -57,7 +57,7 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
 
                 const welcomeNote = new Note({
                     content: `Welcome, ${req.user.name}! So far you've had:${msgStr}`,
-                    type: "msgToUser",
+                    format: "msgToUser",
                 });
                 welcomeNote.save( (err, note) => {
                     if (err) throw err;
@@ -83,7 +83,7 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
             dose.save((err, dose) => {
                 const welcomeNote = new Note({
                     content: `Welcome, ${req.user.name}! So far you've had:\n${req.body.dose}${req.body.unit} of ${prettyName}`,
-                    type: "msgToUser",
+                    format: "msgToUser",
                 });
                 welcomeNote.save( (err, note) => {
                     if (err) throw err;
@@ -110,7 +110,6 @@ router.get('/logs/:logId', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
     .populate('doses').populate('notes').populate('owner').lean()
     .then(log => {
         if (log.owner._id.equals(req.user._id)) {
-            console.log(log);
             return res.render('log-show', { log });
         }
         return res.redirect(`/`);
@@ -121,171 +120,120 @@ router.get('/logs/:logId', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
     });
 });
 
-/* POST show log (updates log/note/dose details)
-    This handles most of the important stuff! */
-router.post('/logs/:logId', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
-        Log.findById(req.params.logId)
-        .populate('doses').populate('notes').populate('owner').lean()
-        .then( async (log) => {
-            // Check that the current user owns this log.
-            if (!log.owner._id.equals(req.user._id)) {return res.redirect(`/`);}
-
-            // Check which form was submitted and handle the rest accordingly
-            // req.body.update is a hidden value indluded in each form on /logs/:logId
-            const reason = req.body.update;
-            switch (reason) {
-            // Adding a note
-            case "add_note":
-                const noteTxt = req.body.note;
-                console.log(`noteTxt: ${noteTxt}`);
-                if (noteTxt && noteTxt != "") {
-                    /* the Ask The Caterpillar API is down until further notice,
-                    the NLP library they were using wasn't maintained and it
-                    stopped working. :(
-                    https://github.com/estiens/caterpillar_rails/issues/25
-
-                    if (noteTxt.substring(0, 3) === "???" && noteTxt.length > 4) {
-                        const question = noteTxt.substring(4,);
-                        try {
-                            const answer = await askTheCaterpillar(question);
-                        } catch (err) {
-                            console.log(err);
-                            const answer = `So sorry! Ask The Caterpillar is currently down, try again later.`;
-                        }
-                        Note.insertMany([
-                            new Note({
-                                content: question,
-                                type: "question",
-                            }),
-                            new Note({
-                                content: await answer,
-                                type: "answer",
-                            }),
-                        ], (err, noteIds) => {
-                            if (err) throw err;
-                            Log.updateOne(
-                                { _id: log._id },
-                                { $push: { notes: noteIds } },
-                                (err, log) => { if (err) throw err; }
-                            );
-                        })
-                    } else {*/
-                    const newNote = new Note({
-                        content: noteTxt.trim(), type: "str",
-                    });
-                    newNote.save( (err, note) => {
-                        if (err) throw err;
-                        Log.updateOne(
-                            { _id: log._id },
-                            { $push: { notes: note } },
-                            (err, log) => {
-                                if (err) throw err;
-                                res.redirect(`/logs/${log._id}`);
-                            }
-                        );
-                    });
-                }
-                break;
-            // Adding an edit to a note
-            case "edit_note":
-                const newEdit = new Note({
-                    content: req.body.editNoteText, type: "str",
-                });
-                newEdit.save( (err, edit) => {
-                    if (err) throw err;
-                    Note.updateOne(
-                        { _id: req.body.noteId },
-                        { $push: { edits: edit } },
-                        (err, log) => {
-                            if (err) throw err;
-                            res.redirect(`/logs/${log._id}`);
-                        }
-                    );
-                });
-                break;
-            // Editting title/description of the log
-            case "edit_details":
+router.post('/logs/:logId/addDose', connectEnsureLogin.ensureLoggedIn(), async(req, res) => {
+    if (req.user.logs.indexOf(req.params.logId) < 0) {
+        return res.redirect(`/`);
+    }
+    try {
+        const prettyName = await getPrettyName(req.body.drug);
+        const newDose = new Dose({
+            drug: req.body.drug,
+            dose: req.body.dose,
+            unit: req.body.unit,
+            prettyName: prettyName,
+        });
+        newDose.save((err, dose) => {
+            var doseNoteStr = `Dose Added: ${req.body.dose}${req.body.unit} of `;
+            if (prettyName) { doseNoteStr += `${req.body.drug} (${prettyName})`; }
+            else { doseNoteStr += req.body.drug; }
+            const doseNoteObj = new Note({
+                content: doseNoteStr,
+                format: "msgToUser",
+            });
+            doseNoteObj.save((err, doseNote) => {
                 Log.updateOne(
-                    { _id: log._id },
-                    {
-                        title: req.body.title,
-                        desc: req.body.desc,
-                    },
-                    (err, log) => {
-                        if (err) throw err;
-                        res.redirect(`/logs/${log._id}`);
-                    }
-                );
-                break;
-            // Adding a dose
-            case "add_dose":
-                try {
-                    var prettyName = await getPrettyName(req.body.drug);
-                } catch (err) {
-                    var prettyName = null;
-                }
-                const dose = new Dose({
-                    drug: req.body.drug,
-                    dose: req.body.dose,
-                    unit: req.body.unit,
-                    prettyName: await prettyName,
+                    { _id: req.params.logId },
+                    { $push: { notes: doseNote, doses: dose } })
+                .then( (err, log) => {
+                    return setTimeout(() => { res.redirect(`/logs/${req.params.logId}`); }, 3000);
                 });
-                dose.save((err, dose) => {
-                    var noteStr = `Welcome, ${req.user.name}! So far you've had:\n${req.body.dose}${req.body.unit} of `
-                    if (prettyName) {
-                        noteStr += prettyName;
-                    } else {
-                        noteStr += req.body.drug;
-                    }
-                    const welcomeNote = new Note({
-                        content: noteStr,
-                        type: "msgToUser",
-                    });
-                    welcomeNote.save( (err, note) => {
-                        if (err) throw err;
-                        Log.updateOne(
-                            { _id: log._id },
-                            { $push: { notes: note, doses: dose } },
-                            (err, log) => {
-                                if (err) throw err;
-                                res.redirect(`/logs/${log._id}`);
-                            }
-                        );
-                    });
-                })
-                break;
-            // Changing the log's status
-            case "status":
-                var statusTxt = "This log was reopened.";
-                if (log.status) {
-                    statusTxt = "This log was marked completed.";
-                }
-                const newNote = new Note({
-                    content: statusTxt,
-                    type: "msgToUser",
-                });
-                newNote.save( (err, note) => {
-                    if (err) throw err;
-                    Log.updateOne(
-                        { _id: log._id },
-                        {
-                            $push: { notes: note },
-                            $set: { status: !log.status },
-                        },
-                        (err, log) => {
-                            if (err) throw err;
-                            res.redirect(`/logs/${log._id}`);
-                        }
-                    );
-                });
-                break;
-            }
-            res.redirect(`/logs/${log._id}`);
-        }).catch(err => {
-            console.log(err);
-            res.redirect(`/logs/${log._id}`);
-        })
+            });
+        });
+    } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
 });
+
+router.post('/logs/:logId/status', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+    if (req.user.logs.indexOf(req.params.logId) < 0) {
+        return res.redirect(`/`);
+    }
+    try {
+        var statusTxt = "This log was reopened.";
+        if (req.body.currentStatus) { statusTxt = "This log was marked completed."; }
+        const newStatusNote = new Note({
+            content: statusTxt,
+            format: "msgToUser",
+        });
+        newStatusNote.save((err, statusNote) => {
+            Log.updateOne(
+                { _id: req.params.logId },
+                { $push: { notes: statusNote }, $set: { status: !req.body.currentStatus } })
+            .then( (err, log) => {
+                return res.redirect(`/logs/${req.params.logId}`);
+            });
+        });
+    } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
+});
+
+router.post('/logs/:logId/editNote', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+    if (req.user.logs.indexOf(req.params.logId) < 0) {
+        return res.redirect(`/`);
+    }
+    try {
+        const editNoteContent = req.body.editNoteText;
+        if (editNoteContent.length < 1) {
+            return res.redirect(`/logs/${req.params.logId}`);
+        }
+        const newEdit = new Note({ content: editNoteContent.trim(), format: "str" });
+        newEdit.save((err, noteEdit) => {
+            Note.updateOne(
+                { _id: req.body.noteId },
+                { $push: { edits: noteEdit } })
+            .then( (err, note) => {
+                return res.redirect(`/logs/${req.params.logId}`);
+            });
+        });
+    } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
+});
+
+router.post('/logs/:logId/addNote', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+    if (req.user.logs.indexOf(req.params.logId) < 0) {
+        return res.redirect(`/`);
+    }
+    try {
+        const noteTxt = req.body.note;
+        if (noteTxt && noteTxt != "" && noteTxt.length > 1) {
+            const newNote = new Note({ content: noteTxt.trim(), format: "str" });
+            newNote.save((err, note) => {
+                Log.updateOne(
+                    { _id: req.params.logId },
+                    { $push: { notes: note } },
+                ).then((err, log) => {
+                    return res.redirect(`/logs/${req.params.logId}`);
+                });
+            });
+        } else {
+            return res.redirect(`/logs/${req.params.logId}`);
+        }
+    } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
+});
+
+router.post('/logs/:logId/editDetails', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+    if (req.user.logs.indexOf(req.params.logId) < 0) {
+        return res.redirect(`/`);
+    }
+    try {
+        Log.updateOne(
+            { _id: req.params.logId },
+            { title: req.body.title, desc: req.body.desc }
+        ).then( (err, log) => {
+            return  res.redirect(`/logs/${req.params.logId}`);
+        });
+    } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
+});
+
+// router.post('/logs/:logId/delete', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+//     // TODO
+// })
 
 /* GET show archive */
 router.get('/archive', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
@@ -318,7 +266,7 @@ async function getPrettyName(name) {
                     resolve(prettyName);
                 }
             }).catch( err => {
-                reject(err);
+                resolve(null);
             });
         } else {
             resolve(null);

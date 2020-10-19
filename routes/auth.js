@@ -74,7 +74,7 @@ router.post('/signup', [
         return res.render("signup", { email: req.body.email, name: req.body.name, errs: errs.array() });
     }
     User.register({ name: req.body.name, email: req.body.email, active: true }, req.body.password);
-    return res.redirect('/');
+    return res.render("login", { email: req.body.email, msgs: ["Sign up successful, you can now log in! :)"] });
 });
 
 module.exports = router;
