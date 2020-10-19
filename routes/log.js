@@ -255,94 +255,94 @@ router.post('/logs/:logId/editDetails', connectEnsureLogin.ensureLoggedIn(), (re
     } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
 });
 
-/* POST edit log title, desc, & doses */
-// router.post('/logs/:logId/editLog', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
-//     if (req.user.logs.indexOf(req.params.logId) < 0) {
-//         return res.redirect(`/`);
-//     }
-//     try {
-//         if (!req.body.drug || !tripping) {
-//             const updateNote = new Note({
-//                 content: `Log updated. There are currently no doses.`,
-//                 format: "msgToUser",
-//                 log: log._id,
-//             });
-//             updateNote.save().then( (err, note) => {
-//                 Log.updateOne(
-//                     { _id: log._id },
-//                     { $push: { notes: note },
-//                     $set: { title: req.body.title, desc: req.body.desc } })
-//                     .then( (err, log) => {
-//                         return res.redirect(`/logs/${req.params.logId}`);
-//                     });
-//                 );
-//             });
-//         } else if (Array.isArray(req.body.drug)) {
-//             var msgStr = ""
-//             var doseArr = [];
-//             for (i = 0; i < req.body.drug.length; i++) {
-//                 prettyName = await getPrettyName(req.body.drug[i]);
-//                 doseArr.push(new Dose({
-//                     drug: req.body.drug[i],
-//                     dose: req.body.dose[i],
-//                     unit: req.body.unit[i],
-//                     log: log._id,
-//                     prettyName: await prettyName,
-//                 }));
-//                 msgStr += `\n${req.body.dose[i]}${req.body.unit[i]} of ${prettyName}`
-//             }
-//             Dose.insertMany(doseArr, (err, doses) => {
-//                 const doseMsg = new Note({
-//                     content: `You've updated your doses! ${req.user.name}! So far you've had:${msgStr}`,
-//                     format: "msgToUser",
-//                     log: log._id,
-//                 });
-//                 doseMsg.save( (err, note) => {
-//                     Log.updateOne(
-//                         { _id: log._id },
-//                         { $push: { notes: note}, $set: {doses: doses} })
-//                     .then( (err, log) => {
-//
-//                     });
-//                 });
-//             })
-//         } else {
-//             try {
-//                 var prettyName = await getPrettyName(req.body.drug);
-//             } catch (err) {
-//                 var prettyName = null;
-//             }
-//             const dose = new Dose({
-//                 drug: req.body.drug,
-//                 dose: req.body.dose,
-//                 unit: req.body.unit,
-//                 log: log._id,
-//                 prettyName: await prettyName,
-//             });
-//             dose.save((err, dose) => {
-//                 const welcomeNote = new Note({
-//                     content: `Welcome, ${req.user.name}! So far you've had:\n${req.body.dose}${req.body.unit} of ${prettyName}`,
-//                     format: "msgToUser",
-//                     log: log._id,
-//                 });
-//                 welcomeNote.save( (err, note) => {
-//                     if (err) throw err;
-//                     Log.updateOne(
-//                         { _id: log._id },
-//                         { $push: { notes: note, doses: dose } },
-//                         (err, log) => { if (err) throw err; }
-//                     );
-//                 });
-//             })
-//         }
-//         Log.updateOne(
-//             { _id: req.params.logId },
-//             { title: req.body.title, desc: req.body.desc }
-//         ).then( (err, log) => {
-//             return  res.redirect(`/logs/${req.params.logId}`);
-//         });
-//     } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
-// });
+/*POST edit log title, desc, & doses
+router.post('/logs/:logId/editLog', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
+    if (req.user.logs.indexOf(req.params.logId) < 0) {
+        return res.redirect(`/`);
+    }
+    try {
+        if (!req.body.drug || !tripping) {
+            const updateNote = new Note({
+                content: `Log updated. There are currently no doses.`,
+                format: "msgToUser",
+                log: log._id,
+            });
+            updateNote.save().then( (err, note) => {
+                Log.updateOne(
+                    { _id: log._id },
+                    { $push: { notes: note },
+                    $set: { title: req.body.title, desc: req.body.desc } })
+                    .then( (err, log) => {
+                        return res.redirect(`/logs/${req.params.logId}`);
+                    });
+                );
+            });
+        } else if (Array.isArray(req.body.drug)) {
+            var msgStr = ""
+            var doseArr = [];
+            for (i = 0; i < req.body.drug.length; i++) {
+                prettyName = await getPrettyName(req.body.drug[i]);
+                doseArr.push(new Dose({
+                    drug: req.body.drug[i],
+                    dose: req.body.dose[i],
+                    unit: req.body.unit[i],
+                    log: log._id,
+                    prettyName: await prettyName,
+                }));
+                msgStr += `\n${req.body.dose[i]}${req.body.unit[i]} of ${prettyName}`
+            }
+            Dose.insertMany(doseArr, (err, doses) => {
+                const doseMsg = new Note({
+                    content: `You've updated your doses! ${req.user.name}! So far you've had:${msgStr}`,
+                    format: "msgToUser",
+                    log: log._id,
+                });
+                doseMsg.save( (err, note) => {
+                    Log.updateOne(
+                        { _id: log._id },
+                        { $push: { notes: note}, $set: {doses: doses} })
+                    .then( (err, log) => {
+
+                    });
+                });
+            })
+        } else {
+            try {
+                var prettyName = await getPrettyName(req.body.drug);
+            } catch (err) {
+                var prettyName = null;
+            }
+            const dose = new Dose({
+                drug: req.body.drug,
+                dose: req.body.dose,
+                unit: req.body.unit,
+                log: log._id,
+                prettyName: await prettyName,
+            });
+            dose.save((err, dose) => {
+                const welcomeNote = new Note({
+                    content: `Welcome, ${req.user.name}! So far you've had:\n${req.body.dose}${req.body.unit} of ${prettyName}`,
+                    format: "msgToUser",
+                    log: log._id,
+                });
+                welcomeNote.save( (err, note) => {
+                    if (err) throw err;
+                    Log.updateOne(
+                        { _id: log._id },
+                        { $push: { notes: note, doses: dose } },
+                        (err, log) => { if (err) throw err; }
+                    );
+                });
+            })
+        }
+        Log.updateOne(
+            { _id: req.params.logId },
+            { title: req.body.title, desc: req.body.desc }
+        ).then( (err, log) => {
+            return  res.redirect(`/logs/${req.params.logId}`);
+        });
+    } catch (err) { if (err) { console.log(err); return res.redirect(`/logs/${req.params.logId}`); } }
+});*/
 
 /* POST delete log */
 router.post('/logs/:logId/delete', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
@@ -376,10 +376,10 @@ router.get('/archive', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
     });
 });
 
-/* GET show options */
+/* GET show options
 router.get('/options', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
     return res.render('options', {});
-});
+});*/
 
 async function getPrettyName(name) {
     return new Promise(function(resolve,reject) {

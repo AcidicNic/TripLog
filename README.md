@@ -42,12 +42,13 @@ Here's the [repo for the Triplog Flask app](https://github.com/AcidicNic/triplog
 * When a log is removed, remove the log id ref from the user.
 * Refresh timestamps (x minutes ago) automatically every minute.
 * Drug info cards.
+* Encrypt log data before storing it in the DB.
 * Warnings if a user enters a dangerous combo.
 * Email verification and password reset via mailgun.
 * Options Page
     * Will include: change name, change password, and delete account. As well as some small options like timestamp format, .
 * Changes to Archive page
-    * Filter options, search, select many and delete, export as timestamped text in trip report format (like T+00:00 - <note text here>)
+    * Filter options, search, select many and delete, export as timestamped text in trip report format (like T+00:00 - note text here)
 * Add more resources to the help button from [this resource list](https://medium.com/@nicole_rocha_abadie/drug-harm-reduction-work-in-progress-a03efcf56493) I've made.
 * Add chatbot like features similar to how I integrated the AskTheCaterpillar chatbot.
     * Ex. You type "!info drug_name" into the add note box at the bottom of the /logs/:logId page. It returns a factsheet.
