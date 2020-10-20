@@ -392,6 +392,8 @@ async function getPrettyName(name) {
                 if (!drugInfo.err) {
                     const prettyName = drugInfo.data[0].pretty_name;
                     resolve(prettyName);
+                } else {
+                    resolve(null);
                 }
             }).catch( err => {
                 resolve(null);
