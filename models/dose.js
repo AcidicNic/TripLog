@@ -8,6 +8,18 @@ const DoseSchema = new Schema({
     unit: { type: String },
     log: { type: Schema.Types.ObjectId, ref: 'Log' },
     createdAt: { type: String },
+    info: {
+        summary: { type: String },
+        aliases: { type: String },
+        avoid: { type: String },
+        effects: { type: String },
+        dose: { type: String },
+        categories: { type: String },
+        duration: { type: String },
+        onset: { type: String },
+        halfLife: { type: String },
+        afterEffects: { type: String },
+    }
 });
 
 DoseSchema.pre("save", function(next) {

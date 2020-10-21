@@ -17,7 +17,7 @@
                 <span>Doses:</span><br>
                 {{#each log.doses}}
                     <!-- TODO: IF option for space between dose and unit -->
-                    <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#drugInfoModal{{this.drug}}">{{ this.dose }}{{ this.unit }} of {{this.drug}} ({{ this.prettyName }})</button>
+                    <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#drugInfoModal{{this.drug}}">{{ this.dose }} {{ this.unit }} of {{this.drug}} {{#if this.prettyName}}({{ this.prettyName }}){{/if}}</button>
                 {{/each}}
                 <br>
                 <button type="button" class="btn btn-dark m-2">Log started on <span class="prettyDate">{{log.createdAt}}</span></button>

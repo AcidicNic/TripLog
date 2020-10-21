@@ -13,34 +13,48 @@
             </div>
             <div class="modal-body">
                 {{#if this.info}}
-                    <h5>Summary:</h5>
-                    <p>{{ this.info.summary }}</p>
+                    {{#if this.info.summary}}
+                        <h5>Summary:</h5>
+                        <p>{{ this.info.summary }}</p>
+                    {{/if}}
 
-                    <h5>Aliases:</h5>
-                    
+                    {{#if this.info.avoid}}
+                        <h5>Avoid:</h5>
+                        <p>{{ this.info.avoid }}</p>
+                    {{/if}}
 
-                    <h5>Effects:</h5>
-                    <ul>
-                        {{#each dose.effects}}<li>{{ this }}</li>{{/each}}
-                    </ul>
+                    {{#if this.info.aliases}}
+                        <h5>Aliases:</h5>
+                        <p>{{ this.info.aliases }}</p>
+                    {{/if}}
 
-                    <h5>Dose:</h5>
-                    <p>{{ this.info.dose }}</p>
+                    {{#if this.info.categories}}
+                        <h5>Categories:</h5>
+                        <p>{{ this.info.categories }}</p>
+                    {{/if}}
 
-                    <h5>Duration:</h5>
-                    <p>{{ this.info.duration }}</p>
+                    {{#if this.info.effects}}
+                        <h5>Effects:</h5>
+                        <p>{{ this.info.effects }}</p>
+                    {{/if}}
+
+                    {{#if this.info.dose}}
+                        <h5>Dose:</h5>
+                        <p>{{ this.info.dose }}</p>
+                    {{/if}}
+
+                    {{#if this.info.duration}}
+                        <p><strong> * Duration:</strong> {{ this.info.duration }}</p>
+                    {{/if}}
                     {{#if this.info.onset}}
-                    <p><strong> * Onset:</strong> {{ this.info.onset }}</p>
+                        <p><strong> * Onset:</strong> {{ this.info.onset }}</p>
                     {{/if}}
-                    {{#if this.info.after-effects}}
-                        <p><strong> * After Effects:</strong> {{ this.info.after-effects }}</p>
+                    {{#if this.info.afterEffects}}
+                        <p><strong> * After Effects:</strong> {{ this.info.afterEffects }}</p>
                     {{/if}}
-                    {{#if this.info.half-life}}
-                    <p><strong> * Half Life:</strong> {{ this.info.half-life }}</p>
+                    {{#if this.info.halfLife}}
+                        <p><strong> * Half Life:</strong> {{ this.info.halfLife }}</p>
                     {{/if}}
-
-                    <h5>Avoid:</h5>
-                    <p>{{ this.info.avoid }}</p>
                 {{else}}
                     <p>Sorry, I can't find any information for {{ this.drug }}!</p>
                 {{/if}}

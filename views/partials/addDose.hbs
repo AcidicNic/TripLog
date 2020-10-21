@@ -12,7 +12,7 @@
                 <form method="POST" id="add_dose_form" action="/logs/{{ log._id }}/addDose">
                     <div id="dose_wrapper">
                         <div class="mx-auto w-75">
-                            <input type="text" class='form-control drug_dropdown' name='drug' autocomplete=off placeholder="Drug"/>
+                            <input type="text" class='form-control drug_dropdown' name='drug' autocomplete=off placeholder="Drug" required/>
                             <div class="input-group">
                                 <input type="text" class='form-control unit_dropdown' name='dose' autocomplete=off placeholder="Dose"/>
                                 <input type="text" class='form-control dose_dropdown' name='unit' autocomplete=off placeholder="Unit"/>

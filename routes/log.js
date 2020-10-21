@@ -24,7 +24,6 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
         owner: req.user._id,
     });
     log.save( async (err, log) => {
-        if (err) throw err; // TODO
 
         if (!req.body.drug || !tripping) {
             const welcomeNote = new Note({
@@ -37,7 +36,7 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
                 Log.updateOne(
                     { _id: log._id },
                     { $push: { notes: note } })
-                .then( (err, log) => {
+                .then( (err) => {
                     return res.redirect(`/logs/${log._id}`);
                 });
             });
@@ -45,15 +44,25 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
             var msgStr = ""
             var doseArr = [];
             for (i = 0; i < req.body.drug.length; i++) {
-                prettyName = await getPrettyName(req.body.drug[i]);
+                try {
+                    var drugInfo = await getDrugInfo(req.body.drug[i]);
+                } catch (err) {
+                    console.log(err);
+                    var drugInfo = [null, null];
+                }
                 doseArr.push(new Dose({
                     drug: req.body.drug[i],
                     dose: req.body.dose[i],
                     unit: req.body.unit[i],
                     log: log._id,
-                    prettyName: await prettyName,
+                    prettyName: await drugInfo[0],
+                    info: await drugInfo[1],
                 }));
-                msgStr += `\n${req.body.dose[i]}${req.body.unit[i]} of ${prettyName}`
+
+                msgStr += `\n${req.body.dose[i]}${req.body.unit[i]} of ${req.body.drug[i]}`
+                if (drugInfo[0]) {
+                    msgStr += ` (${drugInfo[0]})`
+                }
             }
             Dose.insertMany(doseArr, (err, doseArr) => {
                 if (err) throw err;
@@ -75,20 +84,26 @@ router.post('/create', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
             })
         } else {
             try {
-                var prettyName = await getPrettyName(req.body.drug);
+                var drugInfo = await getDrugInfo(req.body.drug);
             } catch (err) {
-                var prettyName = null;
+                console.log(err);
+                var drugInfo = [null, null];
             }
             const dose = new Dose({
                 drug: req.body.drug,
                 dose: req.body.dose,
                 unit: req.body.unit,
                 log: log._id,
-                prettyName: await prettyName,
+                prettyName: await drugInfo[0],
+                info: await drugInfo[1],
             });
+            var welcomeText = `Welcome, ${req.user.name}! So far you've had:\n${req.body.dose}${req.body.unit} of ${req.body.drug}`
+            if (drugInfo[0]) {
+                welcomeText += ` (${drugInfo[0]})`
+            }
             dose.save((err, dose) => {
                 const welcomeNote = new Note({
-                    content: `Welcome, ${req.user.name}! So far you've had:\n${req.body.dose}${req.body.unit} of ${prettyName}`,
+                    content: welcomeText,
                     format: "msgToUser",
                     log: log._id,
                 });
@@ -134,18 +149,19 @@ router.post('/logs/:logId/addDose', connectEnsureLogin.ensureLoggedIn(), async(r
         return res.redirect(`/`);
     }
     try {
-        const prettyName = await getPrettyName(req.body.drug);
+        const drugInfo = await getDrugInfo(req.body.drug);
         const newDose = new Dose({
             drug: req.body.drug,
             dose: req.body.dose,
             unit: req.body.unit,
             log: req.params.logId,
-            prettyName: prettyName,
+            prettyName: await drugInfo[0],
+            info: await drugInfo[1],
         });
+
         newDose.save((err, dose) => {
-            var doseNoteStr = `Dose Added: ${req.body.dose}${req.body.unit} of `;
-            if (prettyName) { doseNoteStr += `${req.body.drug} (${prettyName})`; }
-            else { doseNoteStr += req.body.drug; }
+            var doseNoteStr = `Dose Added: ${req.body.dose}${req.body.unit} of ${req.body.drug}`;
+            if (drugInfo[0]) { doseNoteStr += ` (${drugInfo[0]})`; }
             const doseNoteObj = new Note({
                 content: doseNoteStr,
                 format: "msgToUser",
@@ -381,7 +397,7 @@ router.get('/options', connectEnsureLogin.ensureLoggedIn(), (req, res) => {
     return res.render('options', {});
 });*/
 
-async function getPrettyName(name) {
+async function getDrugInfo(name) {
     return new Promise(function(resolve,reject) {
         if (name && name != "") {
             fetch(`http://tripbot.tripsit.me/api/tripsit/getDrug?name=${name}`)
@@ -390,16 +406,29 @@ async function getPrettyName(name) {
             })
             .then( drugInfo => {
                 if (!drugInfo.err) {
-                    const prettyName = drugInfo.data[0].pretty_name;
-                    resolve(prettyName);
+                    const data = drugInfo.data[0]
+                    const prettyName = data.pretty_name;
+                    const info = {
+                        "summary": data.properties.summary,
+                        "aliases": data.properties.aliases.join(', '),
+                        "avoid": data.properties.avoid,
+                        "effects": data.properties.effects,
+                        "dose": data.properties.dose,
+                        "categories": data.properties.categories.join(', '),
+                        "duration": data.properties.duration,
+                        "onset": data.properties.onset,
+                        "halfLife": data.properties["half-life"],
+                        "afterEffects": data.properties["after-effects"],
+                    }
+                    resolve([prettyName, info]);
                 } else {
-                    resolve(null);
+                    resolve([null, null]);
                 }
             }).catch( err => {
-                resolve(null);
+                resolve([null, null]);
             });
         } else {
-            resolve(null);
+            resolve([null, null]);
         }
     });
 }
