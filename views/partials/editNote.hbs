@@ -11,7 +11,7 @@
             <div class="modal-body">
                 <div class="row note">
                     <div class="col-xs-1 align-middle text-center pl-1">
-                        <span class='timestamp prettyDate'>{{ this.timestamp }}</span> (<span class='timestamp noteTime'>{{ this.timestamp }}</span>)
+                        <span class='timestamp prettyDate' data-time="{{ this.timestamp }}"></span> (<span class='timestamp noteTime' data-time="{{ this.timestamp }}"></span>)
                     </div>
 <!--                    <div class='col-xl-11' style="white-space: pre-wrap;">-->
                     <div class='col-xl-11'>
@@ -22,7 +22,7 @@
                         {{#each this.edits}}
                             <div class="row note">
                                 <div class="col-xs-1 align-middle text-center pl-1">
-                                    <span class='time noteTime timestamp'>{{ this.timestamp }}</span>
+                                    <span class='time noteTime timestamp' data-time="{{ this.timestamp }}"></span>
                                 </div>
                                 <div class='col-xl-11 show-whitespace'>{{ this.content }}</div>
                             </div>

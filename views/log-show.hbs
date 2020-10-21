@@ -20,7 +20,7 @@
                     <button type="button" class="btn btn-secondary m-2" data-toggle="modal" data-target="#drugInfoModal{{this.drug}}">{{ this.dose }} {{ this.unit }} of {{this.drug}} {{#if this.prettyName}}({{ this.prettyName }}){{/if}}</button>
                 {{/each}}
                 <br>
-                <button type="button" class="btn btn-dark m-2">Log started on <span class="prettyDate">{{log.createdAt}}</span></button>
+                <button type="button" class="btn btn-dark m-2">Log started on <span class="prettyDate" data-time="{{log.createdAt}}"></span></button>
             </div>
             <div class="d-flex justify-content-between btn-row text-white">
                 <button type="button" class="btn btn-primary m-2" onclick="location.href='/';">Home</button>
@@ -71,14 +71,14 @@
             <a data-toggle="modal" data-target="#editNoteModal{{this._id}}">
                 <div class="row note">
                     <div class="col-xs-1 align-middle text-center pl-1">
-                        <span class='time noteTime timestamp'>{{ this.timestamp }}</span>
+                        <span class='time noteTime timestamp' data-time="{{ this.timestamp }}"></span>
                     </div>
                     <div class='col-xl-11 show-whitespace'>{{ this.content }}</div>
                     {{#if this.edits}}
                             {{#each this.edits}}
                                 <div class="row note">
                                     <div class="col-xs-1 align-middle text-center pl-1">
-                                        <span class='time noteTime timestamp'>{{ this.timestamp }}</span>
+                                        <span class='time noteTime timestamp' data-time="{{ this.timestamp }}"></span>
                                     </div>
                                     <div class='col-xl-11 show-whitespace'>{{ this.content }}</div>
                                 </div>
@@ -90,7 +90,7 @@
         {{#ifEqls this.format 'msgToUser'}}
             <div class="row answer">
                 <div class="col-xs-1 align-middle text-center pl-1">
-                    <span class='timestamp prettyDate'>{{ this.timestamp }}</span> (<span class='timestamp noteTime'>{{ this.timestamp }}</span>)
+                    <span class='timestamp prettyDate' data-time="{{ this.timestamp }}"></span> (<span class='timestamp noteTime' data-time="{{ this.timestamp }}"></span>)
                 </div>
                 <div class='col-xl-11 show-whitespace'>{{ this.content }}</div>
             </div>
@@ -155,17 +155,27 @@
     function prettyDates() {
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         $(".prettyDate").each( function(ele) {
-            var dateTime = new Date($(this).text());
-            var prettyTime = moment(dateTime).tz(timezone).format("LLLL");
-            $(this).text(prettyTime);
+            var dateTime = new Date( $(this).data("time") );
+            var prettyDateTime = moment(dateTime).tz(timezone).format("llll");
+            $(this).text(prettyDateTime);
         });
     }
+    /* TODO: add options for different time formats */
+    // function prettyDetailedDates() {
+    //     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    //     $(".prettyDetailedDate").each( function(ele) {
+    //         var dateTime = new Date( $(this).data("time") );
+    //         var prettyDateTime = moment(dateTime).tz(timezone).format("LLLL");
+    //         $(this).text(prettyDateTime);
+    //     });
+    // }
     function prettyTimestamps() {
+        console.log("prettyTimestamps() excecuted");
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         $(".noteTime").each( function(ele) {
-            var timeStr = new Date($(this).text());
-            var prettyTime = moment(timeStr).tz(timezone).fromNow();
-            $(this).text(prettyTime);
+            var dateTime = new Date( $(this).data("time") );
+            var prettyTimeSince = moment(dateTime).tz(timezone).fromNow();
+            $(this).text(prettyTimeSince);
         });
     }
     function submitThenClear(formId, textareaId) {
@@ -179,5 +189,6 @@
         window.scrollTo(0,document.body.scrollHeight);
         prettyDates();
         prettyTimestamps();
+        setInterval(prettyTimestamps, 60000);
     };
 </script>
