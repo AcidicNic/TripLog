@@ -1,6 +1,8 @@
 # TripLog
 **Want to try this out? Visit [triplog.xyz](http://www.triplog.xyz/)**
+**DISCLAIMER:** This is only live for testing purposes. There will be bugs, the database may be wiped clean at any moment if I have to make any major changes to a model. At this point your data is not entirely secure, the only thing that's being encrypted is passwords. I still can see all log data in the database.
 
+If you find a bug create an issue on this repo, or email me at nic4096@gmail.com
 ----
 
 ### Intensive Info:
@@ -43,14 +45,15 @@ Here's the [repo for the Triplog Flask app](https://github.com/AcidicNic/triplog
 * ~~Drug info cards.~~
 * ~~When a log is removed, remove the log id ref from the user.~~
 * ~~Refresh timestamps (x minutes ago) automatically every minute.~~
+* ~~Use different DBs for development and production.~~
 * Encrypt log data before storing it in the DB.
 * Warnings if a user enters a dangerous combo.
 * Email verification and password reset via mailgun.
 * Options Page
-    * Will include: change name, change password, and delete account. As well as some small options like timestamp format, .
+    * Will include: change name, change password, and delete account. As well as some small options like timestamp format.
 * Changes to Archive page
     * Filter options, search, select many and delete, export as timestamped text in trip report format (like T+00:00 - note text here)
-* Add more resources to the help button from [this resource list](https://medium.com/@nicole_rocha_abadie/drug-harm-reduction-work-in-progress-a03efcf56493) I've made.
+* Add more links to the help modal from [this harm reduction resource list](https://medium.com/@nicole_rocha_abadie/drug-harm-reduction-work-in-progress-a03efcf56493) I put together.
 * Add chatbot like features similar to how I integrated the AskTheCaterpillar chatbot.
     * Ex. You type "!info drug_name" into the add note box at the bottom of the /logs/:logId page. It returns a factsheet.
 
