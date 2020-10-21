@@ -3,6 +3,7 @@
 **DISCLAIMER:** This is only live for testing purposes. There will be bugs, the database may be wiped clean at any moment if I have to make any major changes to a model. At this point your data is not entirely secure, the only thing that's being encrypted is passwords. I still can see all log data in the database.
 
 If you find a bug create an issue on this repo, or email me at nic4096@gmail.com
+
 ----
 
 ### Intensive Info:
