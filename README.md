@@ -31,6 +31,7 @@ Here's the [repo for the Triplog Flask app](https://github.com/AcidicNic/triplog
     * Click 'Add Dose' to add a dose.
     * Click on your description to edit the log's title & description.
     * Click 'Home' to go back.
+    * Click on a dose to pull up an info card.
 
 * You can ask drug related questions to the AskTheCaterpillar API right in your note text box! Start your note with ???, like this "??? your question here" and a new note will appear on the screen with the answer to your question.
     * __*Sadly, [AskTheCaterpillar is not working anymore](https://github.com/estiens/caterpillar_rails/issues/25). :( I'll add this feature back in as soon as the API is up and running again!*__
@@ -41,7 +42,6 @@ Here's the [repo for the Triplog Flask app](https://github.com/AcidicNic/triplog
 ### What's coming next?
 * When a log is removed, remove the log id ref from the user.
 * Refresh timestamps (x minutes ago) automatically every minute.
-* Drug info cards.
 * Encrypt log data before storing it in the DB.
 * Warnings if a user enters a dangerous combo.
 * Email verification and password reset via mailgun.
