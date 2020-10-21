@@ -40,7 +40,8 @@ Here's the [repo for the Triplog Flask app](https://github.com/AcidicNic/triplog
 
 
 ### What's coming next?
-* When a log is removed, remove the log id ref from the user.
+* ~~Drug info cards.~~
+* ~~When a log is removed, remove the log id ref from the user.~~
 * Refresh timestamps (x minutes ago) automatically every minute.
 * Encrypt log data before storing it in the DB.
 * Warnings if a user enters a dangerous combo.

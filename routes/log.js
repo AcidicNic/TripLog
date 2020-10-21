@@ -372,9 +372,13 @@ router.post('/logs/:logId/delete', connectEnsureLogin.ensureLoggedIn(), (req, re
             .then( (err, dose) => {
                 Note.deleteMany({ log: req.params.logId })
                 .then( (err, log) => {
-                    return res.redirect(`/?msg=Your log has successfully been deleted!`);
+                    User.updateOne({ _id: req.user._id },
+                        { $pull: { 'logs': req.params.logId } }
+                    ).then( (err) => {
+                        return res.redirect(`/?msg=Your log has successfully been deleted!`);
+                    });
                 });
-            })
+            });
         });
     } catch (err) { if (err) { console.log(err); return res.redirect('/?err=Oops, something went wrong!'); } }
 });
