@@ -8,6 +8,7 @@ const UserSchema = new Schema({
     password: { type: String, select: false },
     name: { type: String },
     logs: [ { type: Schema.Types.ObjectId, ref: 'Log' } ],
+    verified: { type: Boolean, default: false },
     createdAt: { type: Date },
     updatedAt: { type: Date },
 });

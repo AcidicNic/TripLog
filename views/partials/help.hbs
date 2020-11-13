@@ -5,13 +5,26 @@
             <div class="modal-header">
                 <h5 class="modal-title">need help?</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+                <span aria-hidden="true" class="text-white">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <button type="button" class="btn btn-primary m-3" onclick="window.open('https://chat.tripsit.me/')">Need to talk to someone?</button>
-                <button type="button" class="btn btn-primary m-3" onclick="window.open('https://wiki.tripsit.me/images/3/3a/Combo_2.png')">Drug Interaction Chart</button>
-                <button type="button" class="btn btn-primary m-3" onclick="window.open('https://www.reddit.com/r/ReagentTesting/wiki/how_to_reagent_test')">How to Reagent Test</button>
+                <a class="btn btn-primary" href="https://chat.tripsit.me/">Need to talk to someone?</a>
+                <a class="btn btn-primary" href="https://combo.tripsit.me/">Is this drug combo safe?</a>
+                <a class="btn btn-primary" href="https://www.reddit.com/r/ReagentTesting/wiki/how_to_reagent_test/">How to Reagent Test</a>
+
+                <a class="btn btn-primary" href="http://dxm.tripsit.me/">DXM Dose Calculator</a>
+                <a class="btn btn-primary" href="https://acidicnic.github.io/RoboTablets/">RoboTablets (DXM) Dose Converter</a>
+
+                <form class="input-group" action="https://psychonautwiki.org/w/index.php" method="post" target="_blank" aria-describedby="pwSearchHelp">
+                    <input type="text" class="form-control" name="search" id="search" target="_blank" placeholder="Search PsychonautWiki">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-outline-secondary" type="button"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
+                <small id="pwSearchHelp" class="form-text text-muted">Results will open in new tab.</small>
+
+
             </div>
         </div>
     </div>
