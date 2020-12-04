@@ -1,0 +1,17 @@
+version: "4"
+services:
+  app:
+    container_name: triplog-container
+    restart: always
+    build: ./
+    ports:
+      - "80:80"
+    volumes:
+      - .:/app
+    links:
+      - mongo
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - "27017:27017"

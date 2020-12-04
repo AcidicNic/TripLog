@@ -132,17 +132,23 @@ router.get('/verify', (req, res) => {
         const code = req.query.code;
         Verify.findOne({ code: code }, function(err, verify) {
             if (verify) {
-                User.updateOne({ email: verify.email }, { verified: true })
-                .then( (err, user) => {
+                User.findOne({ email: verify.email }, function(err, user) {
+                    if (err) {
+                        return res.redirect(`/?msg=Error while verifying email!`);
+                    }
                     if (user) {
-                        Verify.deleteOne({ _id: verify })
-                        .then( (err) => {
-                            return res.redirect(`/?msg=Your email has been verified!`);
+                        User.updateOne({ email: verify.email }, { verified: true }).then( (err, user) => {
+                            Verify.deleteOne({ _id: verify })
+                            .then( (err, verify) => {
+                                if (err) {
+                                    return res.redirect(`/?msg=Error while verifying email!`);
+                                }
+                                return res.redirect(`/?msg=Your email has been verified!`);
+                            });
                         });
                     }
                 });
-            }
-            return res.redirect(`/?msg=Error while verifying email!`);
+            };
         });
     } catch (err) {
         return res.redirect(`/?msg=Error while verifying email!`);
